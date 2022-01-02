@@ -11,8 +11,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <png++/png.hpp>
+#include "graphics/graphics.h"
+#include "graphics/simple.h"
+#include "graphics/texture.h"
 #include "util.h"
-#include "graphics.h"
+#include <span>
+
 
 void debugGLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void* userPtr) {
     std::cout << "OpenGL Debug Message: (src: " << source << ", type: " << type << ", id: " << id << ", sev: " << severity << ", len: " << length << ", message:\n";
@@ -58,69 +62,32 @@ public:
         glDebugMessageCallback(debugGLMessage, (const void*) this);
         glEnable(GL_BLEND);
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-        int vshader = readShader("res/texture_v.glsl");
-        int fshader = readShader("res/texture_f.glsl");
-        int program = glCreateProgram();
-        glAttachShader(program, vshader);
-        glAttachShader(program, fshader);
-        glBindAttribLocation(program, ATTRIB_POSITION, "position");
-        glBindAttribLocation(program, ATTRIB_TEXTURE, "texture");
-        glLinkProgram(program);
-        checkProgram(program);
-        std::map<UNIFORM_TYPE, GLint> uniforms;
-        uniforms.insert({UNIFORM_MATRIX, glGetUniformLocation(program, "matrix")});
-        uniforms.insert({UNIFORM_COLOR, glGetUniformLocation(program, "color")});
-        uniforms.insert({UNIFORM_SAMPLER, glGetUniformLocation(program, "sampler")});
-
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        GLfloat data[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f,
-            -0.5f, +0.5f, 0.0f, 1.0f,
-            +0.5f, +0.5f, 1.0f, 1.0f,
-            +0.5f, +0.5f, 1.0f, 1.0f,
-            +0.5f, -0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.0f, 0.0f
-        };
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(ATTRIB_POSITION);
-        glVertexAttribPointer(ATTRIB_POSITION, 2, GL_FLOAT, false, 4 * sizeof(GLfloat), (void*) 0);
-        glEnableVertexAttribArray(ATTRIB_TEXTURE);
-        glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, false, 4 * sizeof(GLfloat), (void*) (2 * sizeof(GLfloat)));
         
-        GLuint tex = makeNearestTexture("res/cat.png");
+        {
+            GLuint tex = makeNearestTexture("res/cat.png");
+            SimpleRender simpleRender;
+            TextureRender textureRender;
 
-        while (!glfwWindowShouldClose(window)) {
-            int er = glGetError();
-            if (er != 0) {
-                std::cerr << er << std::endl;
-            }
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            for (float x = 40; x < 1900; x += 30.0f) {
-                for (float y= 40; y < 1000; y += 30.0f) {
-                    glm::mat4 matrix = glm::scale(glm::translate(proj, glm::vec3(x, y, 0)), glm::vec3(30, 30, 0));
-
-                    glBindTexture(GL_TEXTURE_2D, tex);
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindVertexArray(vao);
-                    glUseProgram(program);
-                    glUniformMatrix4fv(uniforms[UNIFORM_MATRIX], 1, false, glm::value_ptr(matrix));
-                    glUniform4f(uniforms[UNIFORM_COLOR], 1.0f, 1.0f, 1.0f, 1.0f);
-                    glUniform1i(uniforms[UNIFORM_SAMPLER], 0);
-                    glDrawArrays(GL_TRIANGLES, 0, 6);
+            while (!glfwWindowShouldClose(window)) {
+                int er = glGetError();
+                if (er != 0) {
+                    std::cerr << er << std::endl;
                 }
-            }
+                glClear(GL_COLOR_BUFFER_BIT);
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
+                for (float x = 40; x < 1900; x += 30.0f) {
+                    for (float y= 40; y < 1000; y += 30.0f) {
+                        glm::mat4 matrix = glm::scale(glm::translate(proj, glm::vec3(x, y, 0)), glm::vec3(25, 25, 0));
+
+                        glBindTexture(GL_TEXTURE_2D, tex);
+                        glActiveTexture(GL_TEXTURE0);
+                        textureRender.render(matrix, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
+                    }
+                }
+
+                glfwSwapBuffers(window);
+                glfwPollEvents();
+            }
         }
 
         glfwTerminate();
@@ -130,7 +97,6 @@ public:
         glViewport(0, 0, width, height);
         windowWidth = width;
         windowHeight = height;
-        //std::cout << "Resize: " << width << " x " << height << std::endl;
         proj = glm::ortho<float>(0, width, height, 0, 0, 1);
     }
 

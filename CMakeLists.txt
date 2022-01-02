@@ -8,7 +8,7 @@ project(app)
 
 file(CREATE_LINK ${PROJECT_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res SYMBOLIC)
 
-add_executable(myapp main.cpp graphics.cpp util.cpp)
+add_executable(myapp main.cpp util.cpp graphics/graphics.cpp graphics/simple.cpp graphics/texture.cpp)
 
 target_link_libraries(myapp glfw GLEW GL png)
 

@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
-#include "util.h"
+#include "../util.h"
 
 const std::string VERTEX_SHADER_SUFFIX = "_v.glsl";
 const std::string FRAGMENT_SHADER_SUFFIX = "_f.glsl";
