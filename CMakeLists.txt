@@ -14,6 +14,7 @@ find_package(Freetype REQUIRED)
 add_executable(myapp main.cpp util.cpp graphics/graphics.cpp graphics/simple.cpp graphics/texture.cpp src/glad/glad.c)
 
 target_include_directories(myapp PUBLIC include)
-target_link_libraries(myapp glfw ${OpenGL_gl_LIBRARY} png freetype)
+target_link_libraries(myapp glfw3 ${OpenGL_gl_LIBRARY} png freetype gcc stdc++ )
 
 install(TARGETS myapp DESTINATION bin)
+target_link_options(myapp PRIVATE "-static")
