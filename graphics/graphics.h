@@ -1,8 +1,7 @@
 #ifndef _GRAPHICS_H
 #define _GRAPHICS_H
 #include <iostream>
-#include <GL/glew.h>
-#include <GL/gl.h>
+#include "../src/glad/glad.h"
 #include <fstream>
 #include <stdexcept>
 #include <string_view>

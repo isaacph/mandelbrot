@@ -1,7 +1,5 @@
 #ifndef _UTIL_H
 #define _UTIL_H
-#include <png++/png.hpp>
-#include <png++/rgba_pixel.hpp>
 #include <iostream>
 #include <vector>
 #include <string>

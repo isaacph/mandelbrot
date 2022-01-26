@@ -1,16 +1,13 @@
 #include <iostream>
-#include <GL/glew.h> 
-#include <GL/gl.h>
+#include "src/glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <fstream>
-#include <png++/rgba_pixel.hpp>
 #include <stdexcept>
 #include <string_view>
 #include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
-#include <png++/png.hpp>
 #include "graphics/graphics.h"
 #include "graphics/simple.h"
 #include "graphics/texture.h"
@@ -46,10 +43,7 @@ public:
         }
 
         glfwMakeContextCurrent(window);
-        int glewError = glewInit();
-        if (glewError != GLEW_OK) {
-            throw std::runtime_error(std::string("Failed to initialize GLEW: ") + std::string((const char*) glewGetErrorString(glewError)));
-        }
+        gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
         glfwSetWindowUserPointer(window, (void*) this);
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
         onResize(windowWidth, windowHeight);
