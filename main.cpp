@@ -24,7 +24,7 @@ void debugGLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsi
 void debugGLFWMessage(int error, const char* desc) {
     throw std::runtime_error(std::string("GLFW runtime error ") + std::to_string(error) + std::string(desc));
 }
- 
+ //hello
 class Game {
 public:
     void run() {
