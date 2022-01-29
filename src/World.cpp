@@ -1,18 +1,22 @@
 #include "game.h"
 using namespace std;
 
-void World::worldUpdate(const float deltaf){
-    updatePhysics();
+void World::worldUpdate(float deltaF, PlayerInstruction instruct){
+    if(instruct.isJump){
+        player.jump();
+    }
+    updatePhysics(deltaF);
 }
-void World::updatePhysics(){
-    gravity(player);
+void World::updatePhysics(float deltaF){
+    gravity(player, deltaF);
+    player.updateHitbox(deltaF);
 }
-void World::gravity(Player player, float deltaf){
+void World::gravity(Player player, float deltaF){
     bool fall;
     //TODO check if object should fall
 
     if(fall){
-        player.airtime+= deltaf;
+        player.airtime+= deltaF;
         float falling_v=  GRAV_ACCEL* player.airtime;
         if(falling_v > MAX_FALL){
             falling_v = MAX_FALL;
