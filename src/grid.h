@@ -1,6 +1,7 @@
 #ifndef SRC_GRID_H_INCLUDED
 #define SRC_GRID_H_INCLUDED
 #include <map>
+#include <vector>
 
 const int GRID_SIZE = 32;
 using BlockType = char;
@@ -25,6 +26,8 @@ public:
     BlockType check(int worldx, int worldy)const;
     std::map<GridPos, Grid> grids;
 };
+
+std::vector<float> makeTexturedBuffer(const Grid& grid);
 
 
 #endif

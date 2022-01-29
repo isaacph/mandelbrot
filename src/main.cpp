@@ -12,6 +12,7 @@
 #include "graphics/graphics.h"
 #include "graphics/simple.h"
 #include "graphics/texture.h"
+#include "graphics/texbuffer.h"
 #include "util.h"
 #include <span>
 #define MY_PI 3.1415926535979323f
@@ -79,6 +80,9 @@ void Game::run() {
         double speed= 300.0f;
 
         World world;
+        Grid testGrid;
+        std::vector<GLfloat> testBuffer = makeTexturedBuffer(testGrid);
+        TexturedBuffer texturedBuffer(testBuffer);
 
         double growthRate=10.0f;
         while (!glfwWindowShouldClose(window)) {
@@ -97,8 +101,11 @@ void Game::run() {
             playerRenderBox.scale = {100, 100};
             glm::mat4 playerMatrix = toMatrix(world.player.hitbox);
 
-            glBindTexture(GL_TEXTURE_2D, tex);
-            textureRender.render(glm::mat4(1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+            glBindTexture(GL_TEXTURE_2D, tex); textureRender.render(glm::mat4(1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+
+            
+
+            //texturedBuffer.render(
 
             glfwSwapBuffers(window);
             glfwPollEvents();

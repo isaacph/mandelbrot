@@ -26,3 +26,22 @@ BlockType GridManager::check(int worldx, int worldy)const {
     }
     return ptr->second.blocks[ingridy * GRID_SIZE + ingridx];
 }
+
+std::vector<float> makeTexturedBuffer(const Grid& grid) {
+    std::vector<float> buffer;
+    buffer.reserve(GRID_SIZE * GRID_SIZE * 6 * 4);
+    for (int y = 0; y < GRID_SIZE; ++y) {
+        for (int x = 0; x < GRID_SIZE; ++x) {
+            buffer.insert(buffer.end(), {
+                x + 0.0f, y + 0.0f, 0.0f, 0.0f,
+                x + 0.0f, y + 1.0f, 0.0f, 1.0f,
+                x + 1.0f, y + 1.0f, 1.0f, 1.0f,
+                x + 1.0f, y + 1.0f, 1.0f, 1.0f,
+                x + 1.0f, y + 0.0f, 1.0f, 0.0f,
+                x + 0.0f, y + 0.0f, 0.0f, 0.0f
+            });
+        }
+    }
+    return buffer;
+}
+
