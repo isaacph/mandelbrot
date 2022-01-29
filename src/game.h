@@ -20,15 +20,22 @@
 #include <memory>
 #include <cmath>
 
-const float GRAV_ACCEL= 1;
-const float MAX_FALL= 10;
-const float JUMP_INIT_VELOCITY= -5;
-const float VERT_FRICTION= 1;
-const float VERT_ACCEL=2;
+const float GRAV_ACCEL= 1.0f;
+const float MAX_FALL= 10.0f;
+const float JUMP_INIT_VELOCITY= -5.0f;
+const float VERT_FRICTION= 1.0f;
+const float VERT_ACCEL=2.0f;
 
 class PlayerInstruction{
 public:
     bool isJump;
+    bool moveRight;
+    bool moveLeft;
+};
+class Status{
+    int hp;
+    bool stunned;
+    bool invunreable;
 };
 
 class Box {
@@ -70,17 +77,23 @@ public:
     inline void jump(){
       if(numJumps>0){
           y_velocity= JUMP_INIT_VELOCITY;
+          airtime*= 0.1f;
           numJumps--;
         }  
     };
+    void playerMoveLeft(float deltaF);
+    void playerMoveRight(float deltaF);
+    float moveAccel=5;
     float airtime;
     int numJumps;
+    float maxSpeed;
 };
 class World {
 public:
     Player player;
     void worldUpdate(float deltaF, PlayerInstruction instruct);
 private:
+    void playerMovement(float deltaF, PlayerInstruction instruct);
     void updatePhysics(float deltaF);
     void gravity(Player player, float deltaF);
     GridManager gridManager;
