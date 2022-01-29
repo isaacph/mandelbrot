@@ -44,6 +44,18 @@ class Player {
 public:
     Player();
     Box hitbox;
+    inline void moveUp(float speed, float deltaf){
+         hitbox.postion.y-=speed*deltaf;
+    }
+    inline void moveDown(float speed, float deltaf){
+         hitbox.postion.y+=speed*deltaf;
+    }
+    inline void moveRight(float speed, float deltaf){
+         hitbox.postion.x+=speed*deltaf;
+    }
+    inline void moveLeft(float speed, float deltaf){
+         hitbox.postion.x-=speed*deltaf;
+    }
 };
 
 class GridPos {
@@ -58,6 +70,8 @@ class World {
 public:
     Player player;
     std::map<GridPos, Grid> grids;
+private:
+    void playerPhysics();
 };
 
 #endif
