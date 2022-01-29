@@ -1,7 +1,7 @@
 #ifndef _GRAPHICS_H
 #define _GRAPHICS_H
 #include <iostream>
-#include "../src/glad/glad.h"
+#include "../glad/glad.h"
 #include <fstream>
 #include <stdexcept>
 #include <string_view>

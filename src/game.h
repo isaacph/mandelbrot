@@ -46,6 +46,20 @@ public:
 
 glm::mat4 toMatrix(Box box);
 
+class Camera {
+public:
+    void onResize(int windowWidth, int windowHeight);
+    void center(float worldX, float worldY);
+    void zoom(float worldTilesPerScreen);
+    glm::mat4 getView() const;
+private:
+    void update();
+    int windowWidth, windowHeight;
+    glm::vec2 centerPos;
+    float zoomMagnitude;
+    glm::mat4 view;
+};
+
 class Game {
 public:
     void run();

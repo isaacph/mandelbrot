@@ -114,6 +114,7 @@ void Game::run() {
 
     glfwTerminate();
 }
+
 void Game::move(float &x, float &y, float deltaf, float speed){
      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
                 if(x>windowWidth)
