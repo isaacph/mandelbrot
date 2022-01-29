@@ -1,4 +1,6 @@
 #include "util.h"
+#include <png.h>
+#include <cstdio>
 
 std::string readFile(const std::string_view& file) {
     std::string output;
@@ -12,7 +14,7 @@ std::string readFile(const std::string_view& file) {
     return output;
 }
 
-std::vector<unsigned char> readImage(const std::string_view& file, int& width, int& height) {
+std::vector<unsigned char> readImage(const std::string_view& fileName, int& width, int& height) {
 //    png::image<png::rgba_pixel> image(file.data());
 //    width = image.get_width();
 //    height = image.get_height();
@@ -26,7 +28,33 @@ std::vector<unsigned char> readImage(const std::string_view& file, int& width, i
 //            output[(i * height + j) * 4 + 3] = pixel.alpha;
 //        }
 //    }
+
 //    return output;
+    width = -1;
+    height = -1;
+
+    FILE* file = fopen(fileName.data(), "r");
+    unsigned char sig[8];
+    fread(sig, 1, 8, file);
+    if (!png_check_sig(sig, 8)) {
+        throw std::runtime_error(std::string("Failed to read png: ") + std::string(fileName));
+    }
+
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr) {
+        throw std::runtime_error(std::string("Failed to read png: ") + std::string(fileName));
+    }
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+        throw std::runtime_error(std::string("Failed to read png: ") + std::string(fileName));
+    }
+//
+//    if (setjmp(png_ptr->jmpbuf)) {
+//        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+//        throw std::runtime_error(std::string("Failed to read png: ") + std::string(fileName));
+//    }
+
     width = 2;
     height = 2;
     return {
