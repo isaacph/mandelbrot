@@ -21,7 +21,16 @@
 #include <cmath>
 
 const float GRAV_ACCEL= 1;
-const float MAX_FALL=10;
+const float MAX_FALL= 10;
+const float JUMP_INIT_VELOCITY= -5;
+const float VERT_FRICTION= 1;
+const float VERT_ACCEL=2;
+
+class PlayerInstruction{
+public:
+    bool isJump;
+};
+
 class Box {
 public:
     glm::vec2 position;
@@ -48,9 +57,9 @@ public:
     Box hitbox;
     float x_velocity;
     float y_velocity;
-    inline void updateHitbox(float velocity, float deltaf){
-         hitbox.position.y+=velocity*deltaf;
-         hitbox.position.x+=velocity*deltaf;
+    inline void updateHitbox(float deltaF){
+         hitbox.position.y+=x_velocity * deltaF;
+         hitbox.position.x+=y_velocity * deltaF;
     }
     inline void updateXVelocity(float deltaV){
         x_velocity+=deltaV;
@@ -58,16 +67,22 @@ public:
     inline void updateYVelocity(float deltaV){
         y_velocity+=deltaV;
     };
+    inline void jump(){
+      if(numJumps>0){
+          y_velocity= JUMP_INIT_VELOCITY;
+          numJumps--;
+        }  
+    };
     float airtime;
     int numJumps;
 };
 class World {
 public:
     Player player;
-    void worldUpdate(const float deltaf);
+    void worldUpdate(float deltaF, PlayerInstruction instruct);
 private:
-    void playerPhysics();
-    void gravity(Player player, double velocity);
+    void updatePhysics(float deltaF);
+    void gravity(Player player, float deltaF);
     GridManager gridManager;
 };
 
