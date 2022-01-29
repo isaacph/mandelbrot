@@ -32,6 +32,11 @@ public:
     bool moveRight;
     bool moveLeft;
 };
+class Status{
+    int hp;
+    bool stunned;
+    bool invunreable;
+}
 
 class Box {
 public:
