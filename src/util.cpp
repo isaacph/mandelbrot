@@ -36,3 +36,15 @@ std::vector<unsigned char> readImage(const std::string_view& file, int& width, i
         255, 0, 0, 255
     };
 }
+
+int divRoundDown(int a, int b) {
+    if (a * b < 0) {
+        return a / b - 1;
+    }
+    return a / b;
+}
+
+int modRoundDown(int a, int b) {
+    assert (b > 0);
+    return ((a % b) + b) % b;
+}
