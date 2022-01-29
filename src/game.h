@@ -45,7 +45,6 @@ private:
 
 class Player {
 public:
-    Player();
     Box hitbox;
     inline void moveUp(float velocity, float deltaf){
          hitbox.postion.y-=velocity*deltaf;
@@ -62,22 +61,17 @@ public:
     }
     float airtime;
 };
-
-class GridPos {
-public:
-    int x, y;
-    inline bool operator<(const GridPos& other) const {
-        return x == other.x ? y < other.y : x < other.x;
-    }
-};
-
 class World {
 public:
     Player player;
+<<<<<<< HEAD
     std::map<GridPos, Grid> grids;
 private:
     void playerPhysics();
     void gravity(Player player, double velocity)
+=======
+    GridManager gridManager;
+>>>>>>> 6926560e024cfd7f8dd01e365b250dd4215d4f26
 };
 
 #endif
