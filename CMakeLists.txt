@@ -19,7 +19,7 @@ file(GLOB_RECURSE appsourcefiles
 add_executable(myapp ${appsourcefiles} src/glad/glad.c)
 
 target_include_directories(myapp PUBLIC include)
-target_link_libraries(myapp glfw ${OpenGL_gl_LIBRARY} png freetype gcc m dl )
+target_link_libraries(myapp glfw ${OpenGL_gl_LIBRARY} png freetype gcc m )
 
 install(TARGETS myapp DESTINATION bin)
 #target_link_options(myapp PRIVATE "-static")
