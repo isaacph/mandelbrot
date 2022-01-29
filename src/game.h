@@ -49,8 +49,8 @@ public:
     float x_velocity;
     float y_velocity;
     inline void updateHitbox(float velocity, float deltaf){
-         hitbox.postion.y+=velocity*deltaf;
-         hitbox.postion.x+=velocity*deltaf;
+         hitbox.position.y+=velocity*deltaf;
+         hitbox.position.x+=velocity*deltaf;
     }
     inline void updateXVelocity(float deltaV){
         x_velocity+=deltaV;
@@ -67,7 +67,7 @@ public:
     void worldUpdate(const float deltaf);
 private:
     void playerPhysics();
-    void gravity(Player player, double velocity)
+    void gravity(Player player, double velocity);
     GridManager gridManager;
 };
 
