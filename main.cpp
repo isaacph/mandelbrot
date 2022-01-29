@@ -13,6 +13,7 @@
 #include "graphics/texture.h"
 #include "util.h"
 #include <span>
+#define MY_PI 3.1415926535979323f
 
 
 void debugGLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void* userPtr) {
@@ -27,7 +28,6 @@ void debugGLFWMessage(int error, const char* desc) {
 class Game {
 public:
     void run() {
-        GLFWwindow* window;
 
         glfwSetErrorCallback(debugGLFWMessage);
         if (!glfwInit())
@@ -50,6 +50,9 @@ public:
         glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) {
             ((Game*) glfwGetWindowUserPointer(window))->onResize(w, h);
         });
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods){
+            ((Game*) glfwGetWindowUserPointer(window))->onKey(key, scancode, action, mods);
+        });
 
         GLuint unusedIds = 0;
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, &unusedIds, GL_TRUE);
@@ -69,15 +72,13 @@ public:
                 }
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                for (float x = 40; x < 1900; x += 30.0f) {
-                    for (float y= 40; y < 1000; y += 30.0f) {
-                        glm::mat4 matrix = glm::scale(glm::translate(proj, glm::vec3(x, y, 0)), glm::vec3(25, 25, 0));
+                glm::mat4 matrix = glm::mat4(1.0f);
+                matrix = glm::translate(matrix, glm::vec3(200, 200, 0));
+                matrix = glm::scale(matrix, glm::vec3(100, 100, 0));
+                //matrix = glm::rotate(matrix, 45.0f / 180.0f * MY_PI, glm::vec3(0, 0, 1));
 
-                        glBindTexture(GL_TEXTURE_2D, tex);
-                        glActiveTexture(GL_TEXTURE0);
-                        textureRender.render(matrix, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
-                    }
-                }
+                glBindTexture(GL_TEXTURE_2D, tex);
+                textureRender.render(proj * matrix, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
 
                 glfwSwapBuffers(window);
                 glfwPollEvents();
@@ -94,11 +95,18 @@ public:
         proj = glm::ortho<float>(0, width, height, 0, 0, 1);
     }
 
+    void onKey(int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+    }
+
     void onGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message) {
         std::cout << "OpenGL Debug Message: (src: " << source << ", type: " << type << ", id: " << id << ", sev: " << severity << ", len: " << length << ", message:\n";
         std::cout << message << std::endl;
     }
 private:
+    GLFWwindow* window;
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
 };

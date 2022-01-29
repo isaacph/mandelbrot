@@ -27,6 +27,8 @@ std::vector<unsigned char> readImage(const std::string_view& file, int& width, i
 //        }
 //    }
 //    return output;
+    width = 2;
+    height = 2;
     return {
         255, 0, 0, 255,
         0, 255, 0, 255,

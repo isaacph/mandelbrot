@@ -5,16 +5,10 @@
 
 # first: install msys2
 # then run this script in the MSYS2 terminal
-/mingw64.exe # this line is where I try to make sure we have the right compiler selected
+# /mingw64.exe # this line is where I try to make sure we have the right compiler selected
 
 # install the compiler
-pacman -S mingw-w64-x86_64-toolchain
-pacman -S mingw-w64-cmake
-pacman -S git
-pacman -S mingw-w64-x86_64-glfw
-pacman -S mingw-w64-x86_64-freetype
-pacman -S mingw-w64-x86_64-libpng
-pacman -S mingw-w64-x86_64-glm
+pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake git mingw-w64-x86_64-glfw mingw-w64-x86_64-freetype mingw-w64-x86_64-libpng mingw-w64-x86_64-glm
 # pacman -S cmake
 
 # compile the setup project
