@@ -39,18 +39,17 @@ TexturedBuffer::TexturedBuffer(const std::vector<GLfloat>& data) {
 }
 
 void TexturedBuffer::rebuild(const std::vector<float> &buffer) {
-    assert(buffer.size() == shared->length);
     glBindVertexArray(shared->vao);
     glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size() * sizeof(GLfloat), buffer.data());
 }
 
-void TexturedBuffer::render(glm::mat4 matrix, glm::vec4 color, GLint sampler) {
+void TexturedBuffer::render(glm::mat4 matrix, glm::vec4 color, GLint sampler) const {
     glUseProgram(shared->program);
-    glUniformMatrix4fv(uniforms[UNIFORM_MATRIX], 1, false, glm::value_ptr(matrix));
-    glUniform4f(uniforms[UNIFORM_COLOR], color.x, color.y, color.z, color.w);
-    glUniform1i(uniforms[UNIFORM_SAMPLER], sampler);
+    glUniformMatrix4fv(uniforms.at(UNIFORM_MATRIX), 1, false, glm::value_ptr(matrix));
+    glUniform4f(uniforms.at(UNIFORM_COLOR), color.x, color.y, color.z, color.w);
+    glUniform1i(uniforms.at(UNIFORM_SAMPLER), sampler);
     glBindVertexArray(shared->vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, shared->length / 4);
 }
 
 TexturedBuffer::Shared::~Shared() {

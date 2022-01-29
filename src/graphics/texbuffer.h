@@ -7,7 +7,7 @@
 class TexturedBuffer {
 public:
     TexturedBuffer(const std::vector<GLfloat>& buffer);
-    void render(glm::mat4 matrix, glm::vec4 color, GLint sampler);
+    void render(glm::mat4 matrix, glm::vec4 color, GLint sampler) const;
     void rebuild(const std::vector<GLfloat>& buffer);
 private:
     // Shared is used so that Renders can be copied and still work just fine

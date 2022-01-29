@@ -8,5 +8,5 @@ in vec2 texCoord;
 out vec4 outColor;
 
 void main() {
-   outColor = texture2D(sampler, texCoord) * color + vec4(0.1);
+   outColor = texture2D(sampler, texCoord) * color;
 }

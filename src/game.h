@@ -19,6 +19,8 @@
 #include "grid.h"
 #include <memory>
 #include <cmath>
+#include <functional>
+#include "events.h"
 
 const float GRAV_ACCEL= 1.0f;
 const float MAX_FALL= 10.0f;
@@ -52,12 +54,15 @@ public:
     void center(float worldX, float worldY);
     void zoom(float worldTilesPerScreen);
     glm::mat4 getView() const;
+    glm::vec2 getCenter() const;
+    glm::vec2 toWorldCoordinate(glm::vec2 screenCoordinate) const;
+    glm::vec2 toScreenCoordinate(glm::vec2 worldCoordinate) const;
 private:
     void update();
     int windowWidth, windowHeight;
     glm::vec2 centerPos;
     float zoomMagnitude;
-    glm::mat4 view;
+    glm::mat4 view, invView;
 };
 
 class Game {
@@ -71,6 +76,7 @@ private:
     GLFWwindow* window;
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
+    Camera camera;
 };
 
 class Player {
@@ -105,12 +111,12 @@ public:
 class World {
 public:
     Player player;
+    GridManager gridManager;
     void worldUpdate(float deltaF, PlayerInstruction instruct);
 private:
     void playerMovement(float deltaF, PlayerInstruction instruct);
     void updatePhysics(float deltaF);
     void gravity(Player player, float deltaF);
-    GridManager gridManager;
 };
 
 #endif
