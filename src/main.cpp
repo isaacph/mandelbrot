@@ -98,7 +98,7 @@ void Game::run() {
             glm::mat4 playerMatrix = toMatrix(world.player.hitbox);
 
             glBindTexture(GL_TEXTURE_2D, tex);
-            textureRender.render(proj * playerMatrix, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 0);
+            textureRender.render(glm::mat4(1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
