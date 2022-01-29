@@ -3,6 +3,7 @@
 
 const int GRID_SIZE = 32;
 using BlockType = char;
+const BlockType air=0;
 
 class Grid {
 public:

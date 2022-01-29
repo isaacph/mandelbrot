@@ -18,6 +18,9 @@
 #define MY_PI 3.1415926535979323f
 #include "grid.h"
 #include <memory>
+#include <cmath>
+
+const float GRAV_ACCEL= 1;
 
 class Box {
 public:
@@ -44,18 +47,20 @@ class Player {
 public:
     Player();
     Box hitbox;
-    inline void moveUp(float speed, float deltaf){
-         hitbox.postion.y-=speed*deltaf;
+    inline void moveUp(float velocity, float deltaf){
+         hitbox.postion.y-=velocity*deltaf;
     }
-    inline void moveDown(float speed, float deltaf){
-         hitbox.postion.y+=speed*deltaf;
+    
+    inline void moveDown(float velocity, float deltaf){
+         hitbox.postion.y+=velocity*deltaf;
     }
-    inline void moveRight(float speed, float deltaf){
-         hitbox.postion.x+=speed*deltaf;
+    inline void moveRight(float velocity, float deltaf){
+         hitbox.postion.x+=velocity*deltaf;
     }
-    inline void moveLeft(float speed, float deltaf){
-         hitbox.postion.x-=speed*deltaf;
+    inline void moveLeft(float velocity, float deltaf){
+         hitbox.postion.x-=velocity*deltaf;
     }
+    float airtime;
 };
 
 class GridPos {
@@ -72,6 +77,7 @@ public:
     std::map<GridPos, Grid> grids;
 private:
     void playerPhysics();
+    void gravity(Player player, double velocity)
 };
 
 #endif
