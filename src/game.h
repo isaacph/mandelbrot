@@ -21,7 +21,7 @@
 #include <cmath>
 
 const float GRAV_ACCEL= 1;
-
+const float MAX_FALL=10;
 class Box {
 public:
     glm::vec2 position;
@@ -46,32 +46,29 @@ private:
 class Player {
 public:
     Box hitbox;
-    inline void moveUp(float velocity, float deltaf){
-         hitbox.postion.y-=velocity*deltaf;
-    }
-    
-    inline void moveDown(float velocity, float deltaf){
+    float x_velocity;
+    float y_velocity;
+    inline void updateHitbox(float velocity, float deltaf){
          hitbox.postion.y+=velocity*deltaf;
-    }
-    inline void moveRight(float velocity, float deltaf){
          hitbox.postion.x+=velocity*deltaf;
     }
-    inline void moveLeft(float velocity, float deltaf){
-         hitbox.postion.x-=velocity*deltaf;
-    }
+    inline void updateXVelocity(float deltaV){
+        x_velocity+=deltaV;
+    };
+    inline void updateYVelocity(float deltaV){
+        y_velocity+=deltaV;
+    };
     float airtime;
+    int numJumps;
 };
 class World {
 public:
     Player player;
-<<<<<<< HEAD
-    std::map<GridPos, Grid> grids;
+    void worldUpdate(const float deltaf);
 private:
     void playerPhysics();
     void gravity(Player player, double velocity)
-=======
     GridManager gridManager;
->>>>>>> 6926560e024cfd7f8dd01e365b250dd4215d4f26
 };
 
 #endif

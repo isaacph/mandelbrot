@@ -22,7 +22,7 @@ public:
 class GridManager {
 public:
     BlockType& at(int worldx, int worldy);
-    BlockType check(int worldx, int worldy);
+    BlockType check(int worldx, int worldy)const;
     std::map<GridPos, Grid> grids;
 };
 

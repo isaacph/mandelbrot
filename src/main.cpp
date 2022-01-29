@@ -92,19 +92,6 @@ void Game::run() {
             }
             glClear(GL_COLOR_BUFFER_BIT);
 
-            move(x,y,deltaf,speed);
-            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-                if(gx<50.0f)
-                    gx=500.0f *deltaf;
-                else
-                    gx-= growthRate*deltaf;
-            }
-            if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-                if(gx>500.0f)
-                     gx=50.0f;
-                else gx+= growthRate*deltaf;
-            }
-
             Box playerRenderBox;
             playerRenderBox.position = glm::vec2{world.player.hitbox.position.x, world.player.hitbox.position.y};
             playerRenderBox.scale = {100, 100};
