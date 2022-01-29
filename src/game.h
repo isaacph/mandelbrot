@@ -36,7 +36,7 @@ class Status{
     int hp;
     bool stunned;
     bool invunreable;
-}
+};
 
 class Box {
 public:

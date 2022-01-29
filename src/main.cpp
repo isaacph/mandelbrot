@@ -68,7 +68,7 @@ void Game::run() {
     glfwSwapInterval(1);
     
     {
-        GLuint tex = makeNearestTexture("res/cat.png");
+        GLuint tex = makeNearestTexture("res/blobfish.png");
         SimpleRender simpleRender;
         TextureRender textureRender;
         float x=0.0f, y=200.0f, gx=200.0f;
