@@ -59,22 +59,48 @@ public:
         glDebugMessageCallback(debugGLMessage, (const void*) this);
         glEnable(GL_BLEND);
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        glfwSwapInterval(1);
         
         {
             GLuint tex = makeNearestTexture("res/cat.png");
             SimpleRender simpleRender;
             TextureRender textureRender;
+            float x=0.0f, y=200.0f, gx=200.0f;
 
+            double currentTime = glfwGetTime();
+            double lastTime = currentTime;
+            double delta = 0;
+            double speed= 300.0f;
+
+            double growthRate=10.0f;
             while (!glfwWindowShouldClose(window)) {
+                currentTime = glfwGetTime();
+                delta = currentTime - lastTime;
+                lastTime = currentTime;
+                float deltaf = (float) delta;
                 int er = glGetError();
                 if (er != 0) {
                     std::cerr << er << std::endl;
                 }
                 glClear(GL_COLOR_BUFFER_BIT);
 
+                move(x,y,deltaf,speed);
+                if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+                    if(gx<50.0f)
+                    gx=500.0f *deltaf;
+                    else
+                    gx-= growthRate*deltaf;
+            }
+         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+                    if(gx>500.0f)
+                    gx=50.0f;
+                    else
+                   gx+= growthRate*deltaf;
+            }
+
                 glm::mat4 matrix = glm::mat4(1.0f);
-                matrix = glm::translate(matrix, glm::vec3(200, 200, 0));
-                matrix = glm::scale(matrix, glm::vec3(100, 100, 0));
+                matrix = glm::translate(matrix, glm::vec3(x, y, 0));
+                matrix = glm::scale(matrix, glm::vec3(gx, gx, 0));
                 //matrix = glm::rotate(matrix, 45.0f / 180.0f * MY_PI, glm::vec3(0, 0, 1));
 
                 glBindTexture(GL_TEXTURE_2D, tex);
@@ -87,7 +113,32 @@ public:
 
         glfwTerminate();
     }
-
+    void move(float &x, float &y, float deltaf, float speed){
+         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+                    if(x>windowWidth)
+                    x=0.0f *deltaf;
+                    else
+                    x+= speed*deltaf;
+            }
+         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+                    if(x<0)
+                    x=(float)windowWidth;
+                    else
+                    x-= speed*deltaf;
+            }
+         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+                    if(y<0)
+                    y=(float)windowHeight;
+                    else
+                    y-= speed*deltaf;
+            }
+         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+                    if(y>windowHeight)
+                    y=0.0f *deltaf;
+                    else
+                    y+= speed*deltaf;
+             }
+    }
     void onResize(int width, int height) {
         glViewport(0, 0, width, height);
         windowWidth = width;
