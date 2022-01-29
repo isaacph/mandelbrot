@@ -42,24 +42,8 @@ private:
 
 class Player {
 public:
-    Player();
     Box hitbox;
 };
-
-class GridPos {
-public:
-    int x, y;
-    inline bool operator<(const GridPos& other) const {
-        return x == other.x ? y < other.y : x < other.x;
-    }
-};
-
-class GridManager {
-public:
-    BlockType& at(int worldx, int worldy);
-    std::map<GridPos, Grid> grids;
-};
-
 class World {
 public:
     Player player;
