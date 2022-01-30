@@ -79,7 +79,6 @@ void Game::run() {
         double speed= 300.0f;
 
         //World world;
-        std::map<GridPos, TexturedBuffer> gridRendering;
         //b2BodyDef groundBodyDef;
         //groundBodyDef.position.Set(0.0f, 5.0f);
         //b2Body* groundBody = box2dWorld.CreateBody(&groundBodyDef);
@@ -106,6 +105,7 @@ void Game::run() {
         std::unique_ptr<GameObject> player = makePlayer(&box2dWorld, {0.0f, -5.0f});
         std::unique_ptr<GameObject> ground = makeGroundType(&box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
        
+        std::map<GridPos, TexturedBuffer> gridRendering;
         auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
@@ -204,15 +204,15 @@ void Game::run() {
             glBindTexture(GL_TEXTURE_2D, tex2);
             textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
-            //for (const auto& p : gridRendering) {
-            //    GridPos pos = p.first;
-            //    const TexturedBuffer& draw = p.second;
-            //    Box gridBox;
-            //    gridBox.position = {pos.x * GRID_SIZE, pos.y * GRID_SIZE};
-            //    gridBox.scale = {GRID_SIZE, GRID_SIZE};
-            //    glBindTexture(GL_TEXTURE_2D, tex);
-            //    draw.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
-            //}
+            for (const auto& p : gridRendering) {
+                GridPos pos = p.first;
+                const TexturedBuffer& draw = p.second;
+                Box gridBox;
+                gridBox.position = {pos.x * GRID_SIZE, pos.y * GRID_SIZE};
+                gridBox.scale = {GRID_SIZE, GRID_SIZE};
+                glBindTexture(GL_TEXTURE_2D, tex);
+                draw.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
+            }
 
             glfwSwapBuffers(window);
             glfwPollEvents();
