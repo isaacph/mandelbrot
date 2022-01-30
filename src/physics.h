@@ -17,6 +17,7 @@ public:
     glm::vec2 position;
     glm::vec2 scale;
     virtual std::vector<glm::vec2> points() const;
+    inline virtual ~Box() {}
 };
 
 class Shadow {
@@ -37,10 +38,11 @@ float max(const std::vector<float>& points);
 std::vector<float> project(const glm::vec2& v, const std::vector<glm::vec2>& points);
 bool intersect(const Shadow& a, const Shadow& b); 
 Shadow shadow(const Convex& convex, const glm::vec2& span);
-bool intersect(Box a, Box b);
+bool intersect(const Convex& a, const Convex& b);
 std::vector<glm::vec2> resolveOptions(Box pusher, Box mover);
-glm::vec2 resolve(Box pusher, Box mover);
-glm::vec2 resolveX(Box pusher, Box mover);
-glm::vec2 resolveY(Box pusher, Box mover);
+glm::vec2 resolve(const Convex& pusher, const Convex& mover);
+glm::vec2 resolveX(const Convex& pusher, const Convex& mover);
+glm::vec2 resolveY(const Convex& pusher, const Convex& mover);
+Box getBoundingBox(const Convex& convex);
 
 #endif

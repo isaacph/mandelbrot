@@ -80,3 +80,24 @@ Grid randomGrid() {
     return grid;
 }
 
+std::vector<GridPos> overlappingTiles(const Convex& convex) {
+    Box bounds = getBoundingBox(convex);
+    int minX = floorInt(bounds.position.x - bounds.scale.x / 2.0f);
+    int minY = floorInt(bounds.position.y - bounds.scale.y / 2.0f);
+    int maxX = floorInt(bounds.position.x + bounds.scale.x / 2.0f) + 1;
+    int maxY = floorInt(bounds.position.y + bounds.scale.y / 2.0f) + 1;
+    std::vector<GridPos> pos;
+    for (int y = minY; y <= maxY; ++y) {
+        for (int x = minX; x <= maxX; ++x) {
+            pos.push_back({x, y});
+        }
+    }
+    return pos;
+}
+
+Box tileBox(int tileX, int tileY) {
+    Box box;
+    box.position = {tileX + 0.5f, tileY + 0.5f};
+    box.scale = {1, 1};
+    return box;
+}

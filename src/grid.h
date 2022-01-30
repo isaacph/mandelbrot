@@ -4,6 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "events.h"
+#include "physics.h"
 
 const int GRID_SIZE = 16;
 using BlockType = char;
@@ -37,5 +38,7 @@ public:
 std::vector<float> makeTexturedBuffer(const Grid& grid);
 std::pair<glm::vec2, glm::vec2> getSpriteSheetCoordinates(int sheetTilesX, int sheetTilesY, int index);
 Grid randomGrid();
+std::vector<GridPos> overlappingTiles(const Convex& convex);
+Box tileBox(int tileX, int tileY);
 
 #endif

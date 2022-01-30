@@ -102,14 +102,14 @@ Shadow shadow(const Convex& convex, const glm::vec2& span) {
     return Shadow(project(span, convex.points()));
 }
 
-bool intersect(Box a, Box b) {
+bool intersect(const Convex& a, const Convex& b) {
     return intersect(shadow(a, glm::vec2(1, 0)),
             shadow(b, glm::vec2(1, 0))) &&
            intersect(shadow(a, glm::vec2(0, 1)),
             shadow(b, glm::vec2(0, 1)));
 }
 
-std::vector<glm::vec2> resolveOptions(Box pusher, Box mover) {
+std::vector<glm::vec2> resolveOptions(const Convex& pusher, const Convex& mover) {
     std::vector<glm::vec2> options;
     std::vector<glm::vec2> basis = {
         {1, 0},
@@ -127,11 +127,11 @@ std::vector<glm::vec2> resolveOptions(Box pusher, Box mover) {
     return options;
 }
 
-glm::vec2 resolve(Box pusher, Box mover) {
+glm::vec2 resolve(const Convex& pusher, const Convex& mover) {
     return absMin(resolveOptions(pusher, mover));
 }
 
-glm::vec2 resolveX(Box pusher, Box mover) {
+glm::vec2 resolveX(const Convex& pusher, const Convex& mover) {
     if(!intersect(pusher, mover)) {
         return {0, 0};
     }
@@ -140,11 +140,27 @@ glm::vec2 resolveX(Box pusher, Box mover) {
     ), 0);
 }
 
-glm::vec2 resolveY(Box pusher, Box mover) {
+glm::vec2 resolveY(const Convex& pusher, const Convex& mover) {
     if(!intersect(pusher, mover)) {
         return {0, 0};
     }
     return glm::vec2(0, resolveIntersect(
         shadow(pusher, glm::vec2{0, 1}), shadow(mover, glm::vec2{0, 1})
     ));
+}
+
+Box getBoundingBox(const Convex& convex) {
+    std::vector<glm::vec2> points = convex.points();
+    glm::vec2 min = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+    glm::vec2 max = {std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()};
+    for (const glm::vec2 & pt : points) {
+        min.x = std::min(min.x, pt.x);
+        min.y = std::min(min.y, pt.y);
+        max.x = std::max(max.x, pt.x);
+        max.y = std::max(max.x, pt.x);
+    }
+    Box box;
+    box.position = (min + max) / 2.0f;
+    box.scale = (max - min);
+    return box;
 }

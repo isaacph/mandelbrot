@@ -15,6 +15,7 @@
 #include "graphics/texbuffer.h"
 #include "util.h"
 #include <span>
+#include <box2d/box2d.h>
 #define MY_PI 3.1415926535979323f
 
 const float MOVE_INTERPOLATE_DISTANCE_LIMIT = 0.1f;
@@ -78,6 +79,27 @@ void Game::run() {
 
         World world;
         std::map<GridPos, TexturedBuffer> gridRendering;
+        b2Vec2 worldGravity(0.0f, 9.8f);
+        b2World box2dWorld(worldGravity);
+        b2BodyDef groundBodyDef;
+        groundBodyDef.position.Set(0.0f, 5.0f);
+        b2Body* groundBody = box2dWorld.CreateBody(&groundBodyDef);
+        b2PolygonShape b2GroundBox;
+        b2GroundBox.SetAsBox(10.0f, 5.0f);
+        groundBody->CreateFixture(&b2GroundBox, 0.0f);
+
+        b2BodyDef playerBodyDef;
+        playerBodyDef.type = b2_dynamicBody;
+        playerBodyDef.position.Set(0.0f, -5.0f);
+        b2Body* playerBody = box2dWorld.CreateBody(&playerBodyDef);
+        b2PolygonShape dynamicBox;
+        dynamicBox.SetAsBox(0.5f, 1.0f);
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &dynamicBox;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.3f;
+        playerBody->CreateFixture(&fixtureDef);
+
         auto gridChangeSub = world.gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
@@ -91,8 +113,8 @@ void Game::run() {
 
         camera.zoom(16.0f);
 
-        x = 0.0f; y= 0.0f;
-        double growthRate=10.0f;
+        double physicsTime = 0;
+        int physicsFrames = 0;
         while (!glfwWindowShouldClose(window)) {
             currentTime = glfwGetTime();
             delta = currentTime - lastTime;
@@ -108,37 +130,20 @@ void Game::run() {
             glfwGetCursorPos(window, &mx, &my);
             glm::vec2 mousePos = {mx, my};
 
-            glm::vec2 camPos = camera.getCenter();
             glm::vec2 playerMove = glm::vec2(0.0f, 0.0f);
-            //playerMove.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
-            //playerMove.y += (glfwGetKey(window, GLFW_KEY_DOWN) - glfwGetKey(window, GLFW_KEY_UP));
-            //playerMove /= playerMove.length();
-            //playerMove *= (delta * 5);
-
-            // instead of moving the object the entire distance at once and then checking collision,
-            // we move the object little by little, and check collision each time
-            while (glm::length(playerMove) > 0 && false) {
-                // get the next bit to move -> partialMove
-                glm::vec2 partialMove;
-                if (glm::length(playerMove) > MOVE_INTERPOLATE_DISTANCE_LIMIT) {
-                    partialMove = playerMove / (playerMove.length() * MOVE_INTERPOLATE_DISTANCE_LIMIT);
-                    playerMove -= partialMove;
-                } else {
-                    partialMove = playerMove;
-                    playerMove = {0, 0};
-                }
-
-                // actually move the player a bit
-                world.player.hitbox.position += partialMove;
-                
-                // check collision
+            float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -8.0f : 0.0f;
+            playerMove.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
+            if (playerMove.length() >= 0) {
+                playerMove /= playerMove.length();
             }
+            
+            playerMove *= 100;
+            b2Vec2 playerMoveForce(playerMove.x, playerMove.y);
+            playerBody->ApplyForce(playerMoveForce, playerBody->GetPosition(), true);
 
-            camera.center(world.player.hitbox.position.x, world.player.hitbox.position.y);
             glm::vec2 mouseWorldPos = camera.toWorldCoordinate(mousePos);
 
             // draw on the grid with the mouse
-            std::cout << floorInt(mouseWorldPos.x) << ", " << floorInt(mouseWorldPos.y) << std::endl;
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
                 world.gridManager.set(1, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
             }
@@ -146,27 +151,51 @@ void Game::run() {
                 world.gridManager.set(air, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
             }
 
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-                x += deltaf;
+            physicsTime += delta;
+            double timeStep = 1.0 / 60.0f;
+            while (physicsTime > timeStep) {
+                b2Vec2 playerMoveForce(playerMove.x * timeStep, playerMove.y * timeStep);
+                b2Vec2 playerJumpImpulse(0, playerJump);
+                if (playerMoveForce.LengthSquared() > 0.00001f) {
+                    playerBody->ApplyForce(playerMoveForce, playerBody->GetPosition(), true);
+                }
+                if (playerJumpImpulse.LengthSquared() > 0.00001f) {
+                    playerBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                }
+
+                physicsFrames++;
+                box2dWorld.Step(1.0f / 60.0f, 8, 3);
+                physicsTime -= 1.0 / 60.0;
             }
 
+            b2Vec2 playerPos = playerBody->GetPosition();
+            camera.center(playerPos.x, playerPos.y);
             Box playerRenderBox;
-            playerRenderBox.position = world.player.hitbox.position;
+            playerRenderBox.position = {playerPos.x, playerPos.y};
             playerRenderBox.scale = {1, 2};
             glm::mat4 playerMatrix = toMatrix(playerRenderBox);
             //glBindTexture(GL_TEXTURE_2D, tex2);
             //textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
             simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
 
-            for (const auto& p : gridRendering) {
-                GridPos pos = p.first;
-                const TexturedBuffer& draw = p.second;
-                Box gridBox;
-                gridBox.position = {pos.x * GRID_SIZE, pos.y * GRID_SIZE};
-                gridBox.scale = {GRID_SIZE, GRID_SIZE};
-                glBindTexture(GL_TEXTURE_2D, tex);
-                draw.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
-            }
+            Box groundBox;
+            b2Vec2 groundPos = groundBody->GetPosition();
+            b2Vec2 groundScale = {20, 10};
+            groundBox.position = {groundPos.x, groundPos.y};
+            groundBox.scale = {groundScale.x, groundScale.y};
+            glm::mat4 groundMatrix = toMatrix(groundBox);
+            glBindTexture(GL_TEXTURE_2D, tex2);
+            textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0);
+
+            //for (const auto& p : gridRendering) {
+            //    GridPos pos = p.first;
+            //    const TexturedBuffer& draw = p.second;
+            //    Box gridBox;
+            //    gridBox.position = {pos.x * GRID_SIZE, pos.y * GRID_SIZE};
+            //    gridBox.scale = {GRID_SIZE, GRID_SIZE};
+            //    glBindTexture(GL_TEXTURE_2D, tex);
+            //    draw.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
+            //}
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -229,3 +258,85 @@ int main() {
     }
     return 0;
 }
+
+//            std::vector<std::unique_ptr<Convex>> toTestCollision;
+//
+//            // instead of moving the object the entire distance at once and then checking collision,
+//            // we move the object little by little, and check collision each time
+//            while (glm::length(playerMove) > 0) {
+//                // get the next bit to move -> partialMove
+//                glm::vec2 partialMove;
+//                if (glm::length(playerMove) > MOVE_INTERPOLATE_DISTANCE_LIMIT) {
+//                    partialMove = playerMove / (playerMove.length() * MOVE_INTERPOLATE_DISTANCE_LIMIT);
+//                    playerMove -= partialMove;
+//                } else {
+//                    partialMove = playerMove;
+//                    playerMove = {0, 0};
+//                }
+//
+//                // actually move the player a bit
+//                world.player.hitbox.position += partialMove;
+//                
+//                // check collision
+//                // grab all the objects to collide with (in collisionTesters)
+//                std::vector<Convex*> collisionTesters;
+//                std::vector<std::unique_ptr<Convex>> temp;
+//                for (const std::unique_ptr<Convex>& collider : toTestCollision) {
+//                    collisionTesters.push_back(collider.get());
+//                }
+//                for (GridPos tilePos : overlappingTiles(world.player.hitbox)) {
+//                    if (world.gridManager.check(tilePos.x, tilePos.y) != air) {
+//                        Box tile = tileBox(tilePos.x, tilePos.y);
+//                        Convex* convex = new Box(tile);
+//                        temp.push_back(std::unique_ptr<Convex>(convex));
+//                        collisionTesters.push_back(convex);
+//                    }
+//                }
+//
+//                int minOverlaps = std::numeric_limits<int>::max();
+//                glm::vec2 minOffset = {0, 0}; // minimized offset for number of overlaps
+//                for (Convex* convexp : collisionTesters) {
+//                    const Convex& convex = *convexp;
+//                    if (intersect(world.player.hitbox, convex)) {
+//                        // make a resolution and figure out how good it is
+//                        Box resolvedPlayer = world.player.hitbox;
+//                        glm::vec2 resolve = {0, 0};
+//                        resolve += resolveX(convex, resolvedPlayer);
+//                        resolvedPlayer.position = world.player.hitbox.position + resolve;
+//                        resolve += resolveY(convex, resolvedPlayer);
+//                        resolvedPlayer.position = world.player.hitbox.position;
+//
+//                        // grab all the objects to collide with (in collisionTesters2)
+//                        int overlaps = 0;
+//                        std::vector<Convex*> collisionTesters2;
+//                        std::vector<std::unique_ptr<Convex>> temp;
+//                        for (const std::unique_ptr<Convex>& collider : toTestCollision) {
+//                            collisionTesters2.push_back(collider.get());
+//                        }
+//                        for (GridPos tilePos : overlappingTiles(world.player.hitbox)) {
+//                            if (world.gridManager.check(tilePos.x, tilePos.y) != air) {
+//                                Box tile = tileBox(tilePos.x, tilePos.y);
+//                                Convex* convex = new Box(tile);
+//                                temp.push_back(std::unique_ptr<Convex>(convex));
+//                                collisionTesters2.push_back(convex);
+//                            }
+//                        }
+//
+//                        // count overlaps
+//                        for (Convex* convexp : collisionTesters2) {
+//                            const Convex& convex = *convexp;
+//                            if (intersect(world.player.hitbox, convex)) {
+//                                ++overlaps;
+//                            }
+//                        }
+//
+//                        if (overlaps < minOverlaps) {
+//                            minOverlaps = overlaps;
+//                            minOffset = resolve;
+//                        }
+//                    }
+//                }
+//
+//                // try to resolve a collision
+//                world.player.hitbox.position += minOffset;
+//            }
