@@ -86,6 +86,7 @@ void Game::run() {
         b2GroundBox.SetAsBox(10.0f, 5.0f);
         b2Fixture* groundFixture = groundBody->CreateFixture(&b2GroundBox, 0.0f);
         groundFixture->SetFriction(1.0f);
+        
 
         b2BodyDef playerBodyDef;
         playerBodyDef.type = b2_dynamicBody;

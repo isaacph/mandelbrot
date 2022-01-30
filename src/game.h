@@ -23,6 +23,7 @@
 #include "events.h"
 #include "physics.h"
 #include <box2d/box2d.h>
+#include <set>
 
 const float GRAV_ACCEL= 1.0f;
 const float MAX_FALL= 10.0f;
@@ -62,7 +63,31 @@ private:
     glm::mat4 view, invView;
 };
 
-class Game {
+struct BodyType {};
+struct BoxBodyType : public BodyType {
+    glm::vec2 scale;
+};
+
+class GameObject {
+public:
+    enum Type {
+        PLAYER, GROUND
+    };
+    std::set<Type> types;
+    std::string name;
+    std::unique_ptr<BodyType> bodyType;
+    b2Body* rigidBody;
+    b2Fixture* fixture;
+    GameObject(b2World* world);
+    ~GameObject();
+private:
+    b2World* world;
+};
+
+std::unique_ptr<GameObject> makePlayer(b2World* world, Box bodyDef);
+std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
+
+class Game : public b2ContactListener {
 public:
     void run();
     void move(float &x, float &y, float deltaf, float speed);
@@ -80,6 +105,14 @@ private:
     b2Fixture* groundFixture;
     b2Body* playerBody;
     b2Fixture* playerFixture;
+public:
+    void BeginContact(b2Contact* contact);
+     
+    void EndContact(b2Contact* contact);
+     
+    void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+     
+    void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 };
 
 class Player {

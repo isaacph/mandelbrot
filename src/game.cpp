@@ -60,3 +60,53 @@ glm::vec2 Camera::toScreenCoordinate(glm::vec2 screenCoordinate) const {
     screenCoordinate += glm::vec2{windowWidth / 2.0f, windowHeight / 2.0f};
     return screenCoordinate;
 }
+
+std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
+    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(world));
+    obj->types = {GameObject::PLAYER};
+    obj->name = "Player";
+    
+    BoxBodyType* boxBody = new BoxBodyType();
+    boxBody->scale = glm::vec2(1.0f, 2.0f);
+    obj->bodyType = std::unique_ptr<BodyType>(boxBody);
+
+    b2BodyDef playerBodyDef;
+    playerBodyDef.type = b2_dynamicBody;
+    playerBodyDef.position.Set(0.0f, -5.0f);
+    playerBodyDef.fixedRotation = true;
+    b2Body* playerBody = world->CreateBody(&playerBodyDef);
+    b2PolygonShape dynamicBox;
+    dynamicBox.SetAsBox(boxBody->scale.x / 2.0f, boxBody->scale.y / 2.0f);
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &dynamicBox;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.3f;
+    b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
+    playerFixture->SetFriction(5.0f);
+
+    obj->rigidBody = playerBody;
+    obj->fixture = playerFixture;
+
+    playerBody->GetUserData().pointer = reinterpret_cast<uintptr_t>(obj.get());
+
+    return obj;
+}
+std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
+
+GameObject::GameObject(b2World* world) : world(world) {}
+GameObject::~GameObject() {
+    rigidBody->DestroyFixture(fixture);
+    world->DestroyBody(rigidBody);
+}
+
+void Game::BeginContact(b2Contact* contact) {
+}
+ 
+void Game::EndContact(b2Contact* contact) {
+}
+ 
+void Game::PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+}
+ 
+void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
+}
