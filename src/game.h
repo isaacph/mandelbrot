@@ -22,6 +22,7 @@
 #include <functional>
 #include "events.h"
 #include "physics.h"
+#include <box2d/box2d.h>
 
 const float GRAV_ACCEL= 1.0f;
 const float MAX_FALL= 10.0f;
@@ -73,6 +74,12 @@ private:
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
     Camera camera;
+    GridManager gridManager;
+    b2World box2dWorld = b2World(b2Vec2(0.0f, 9.8f));
+    b2Body* groundBody;
+    b2Fixture* groundFixture;
+    b2Body* playerBody;
+    b2Fixture* playerFixture;
 };
 
 class Player {
