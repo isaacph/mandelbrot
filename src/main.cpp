@@ -124,7 +124,6 @@ void Game::run() {
         camera.zoom(16.0f);
 
         double physicsTime = 0;
-        int physicsFrames = 0;
         while (!glfwWindowShouldClose(window)) {
             currentTime = glfwGetTime();
             delta = currentTime - lastTime;
@@ -180,12 +179,11 @@ void Game::run() {
                         }
                     }
                 }
-                physicsFrames++;
                 for (GameObject* obj : gameObjects) {
                     obj->onGround = false;
                 }
-                box2dWorld.Step(1.0f / 60.0f, 8, 3);
-                physicsTime -= 1.0 / 60.0;
+                box2dWorld.Step(timeStep, 8, 3);
+                physicsTime -= timeStep;
             }
             //start rendering
             glClear(GL_COLOR_BUFFER_BIT);
