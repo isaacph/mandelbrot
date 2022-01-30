@@ -107,6 +107,8 @@ private:
     bool foward;
     GridManager gridManager;
     b2World box2dWorld = b2World(b2Vec2(0.0f, 9.8f));
+    double physicsTime = 0;
+    bool paused = false;
     //b2Body* groundBody;
     //b2Fixture* groundFixture;
     //b2Body* playerBody;

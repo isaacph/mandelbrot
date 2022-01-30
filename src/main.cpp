@@ -123,7 +123,6 @@ void Game::run() {
 
         camera.zoom(16.0f);
 
-        double physicsTime = 0;
         while (!glfwWindowShouldClose(window)) {
             currentTime = glfwGetTime();
             delta = currentTime - lastTime;
@@ -134,7 +133,7 @@ void Game::run() {
                 std::cerr << er << std::endl;
             }
 
-            std::cout << "Player on ground: " << player->onGround << std::endl;
+            //std::cout << "Player on ground: " << player->onGround << std::endl;
 
             double mx, my;
             glfwGetCursorPos(window, &mx, &my);
@@ -161,7 +160,7 @@ void Game::run() {
                 gridManager.set(air, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
             }
 
-            physicsTime += delta;
+            if (!paused) physicsTime += delta;
             double timeStep = 1.0 / 60.0f;
             while (physicsTime > timeStep) {
                 b2Vec2 playerMoveForce(playerMove.x * timeStep, playerMove.y * timeStep);
@@ -275,6 +274,13 @@ void Game::onKey(int key, int scancode, int action, int mods) {
     }
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
         foward=true;
+    }
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        physicsTime = 0;
+        paused = !paused;
+    }
+    if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+        physicsTime += 1.0 / 60.0;
     }
 }
 
