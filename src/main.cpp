@@ -79,28 +79,31 @@ void Game::run() {
 
         //World world;
         std::map<GridPos, TexturedBuffer> gridRendering;
-        b2BodyDef groundBodyDef;
-        groundBodyDef.position.Set(0.0f, 5.0f);
-        b2Body* groundBody = box2dWorld.CreateBody(&groundBodyDef);
-        b2PolygonShape b2GroundBox;
-        b2GroundBox.SetAsBox(10.0f, 5.0f);
-        b2Fixture* groundFixture = groundBody->CreateFixture(&b2GroundBox, 0.0f);
-        groundFixture->SetFriction(1.0f);
-        
+        //b2BodyDef groundBodyDef;
+        //groundBodyDef.position.Set(0.0f, 5.0f);
+        //b2Body* groundBody = box2dWorld.CreateBody(&groundBodyDef);
+        //b2PolygonShape b2GroundBox;
+        //b2GroundBox.SetAsBox(10.0f, 5.0f);
+        //b2Fixture* groundFixture = groundBody->CreateFixture(&b2GroundBox, 0.0f);
+        //groundFixture->SetFriction(1.0f);
+        //
 
-        b2BodyDef playerBodyDef;
-        playerBodyDef.type = b2_dynamicBody;
-        playerBodyDef.position.Set(0.0f, -5.0f);
-        playerBodyDef.fixedRotation = true;
-        b2Body* playerBody = box2dWorld.CreateBody(&playerBodyDef);
-        b2PolygonShape dynamicBox;
-        dynamicBox.SetAsBox(0.5f, 1.0f);
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = &dynamicBox;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
-        playerFixture->SetFriction(5.0f);
+        //b2BodyDef playerBodyDef;
+        //playerBodyDef.type = b2_dynamicBody;
+        //playerBodyDef.position.Set(0.0f, -5.0f);
+        //playerBodyDef.fixedRotation = true;
+        //b2Body* playerBody = box2dWorld.CreateBody(&playerBodyDef);
+        //b2PolygonShape dynamicBox;
+        //dynamicBox.SetAsBox(0.5f, 1.0f);
+        //b2FixtureDef fixtureDef;
+        //fixtureDef.shape = &dynamicBox;
+        //fixtureDef.density = 1.0f;
+        //fixtureDef.friction = 0.3f;
+        //b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
+        //playerFixture->SetFriction(5.0f);
+
+        std::unique_ptr<GameObject> player = makePlayer(&box2dWorld, {0.0f, -5.0f});
+        std::unique_ptr<GameObject> ground = makeGroundType(&box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
         
         
         
@@ -144,7 +147,7 @@ void Game::run() {
             
             playerMove *= 100;
             b2Vec2 playerMoveForce(playerMove.x, playerMove.y);
-            playerBody->ApplyForce(playerMoveForce, playerBody->GetPosition(), true);
+            player->rigidBody->ApplyForce(playerMoveForce, player->rigidBody->GetPosition(), true);
 
             glm::vec2 mouseWorldPos = camera.toWorldCoordinate(mousePos);
 
@@ -161,7 +164,7 @@ void Game::run() {
             while (physicsTime > timeStep) {
                 b2Vec2 playerMoveForce(playerMove.x * timeStep, playerMove.y * timeStep);
                 if (playerMoveForce.LengthSquared() > 0.00001f) {
-                    playerBody->ApplyForce(playerMoveForce, playerBody->GetPosition(), true);
+                    player->rigidBody->ApplyForce(playerMoveForce, player->rigidBody->GetPosition(), true);
                 }
                 if (playerJump > 0) {
                     // check player can jump
@@ -169,7 +172,7 @@ void Game::run() {
 
                     b2Vec2 playerJumpImpulse(0, playerJump);
                     if (playerJumpImpulse.LengthSquared() > 0.00001f) {
-                        playerBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                        player->rigidBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
                     }
                 }
 
@@ -178,7 +181,7 @@ void Game::run() {
                 physicsTime -= 1.0 / 60.0;
             }
 
-            b2Vec2 playerPos = playerBody->GetPosition();
+            b2Vec2 playerPos = player->rigidBody->GetPosition();
             camera.center(playerPos.x, playerPos.y);
             Box playerRenderBox;
             playerRenderBox.position = {playerPos.x, playerPos.y};
@@ -189,7 +192,7 @@ void Game::run() {
             simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
 
             Box groundBox;
-            b2Vec2 groundPos = groundBody->GetPosition();
+            b2Vec2 groundPos = ground->rigidBody->GetPosition();
             b2Vec2 groundScale = {20, 10};
             groundBox.position = {groundPos.x, groundPos.y};
             groundBox.scale = {groundScale.x, groundScale.y};

@@ -18,6 +18,8 @@ public:
     glm::vec2 scale;
     virtual std::vector<glm::vec2> points() const;
     inline virtual ~Box() {}
+    inline Box() {}
+    inline Box(const glm::vec2& position, const glm::vec2& scale) : position(position), scale(scale) {}
 };
 
 class Shadow {

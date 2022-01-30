@@ -72,7 +72,7 @@ std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
 
     b2BodyDef playerBodyDef;
     playerBodyDef.type = b2_dynamicBody;
-    playerBodyDef.position.Set(0.0f, -5.0f);
+    playerBodyDef.position.Set(position.x, position.y);
     playerBodyDef.fixedRotation = true;
     b2Body* playerBody = world->CreateBody(&playerBodyDef);
     b2PolygonShape dynamicBox;
@@ -91,7 +91,31 @@ std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
 
     return obj;
 }
-std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
+
+std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef) {
+    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(world));
+    obj->types = {GameObject::GROUND};
+    obj->name = "Ground";
+    
+    BoxBodyType* boxBody = new BoxBodyType();
+    boxBody->scale = bodyDef.scale;
+    obj->bodyType = std::unique_ptr<BodyType>(boxBody);
+
+    b2BodyDef groundBodyDef;
+    groundBodyDef.position.Set(bodyDef.position.x, bodyDef.position.y);
+    b2Body* groundBody = world->CreateBody(&groundBodyDef);
+    b2PolygonShape b2GroundBox;
+    b2GroundBox.SetAsBox(bodyDef.scale.x / 2, bodyDef.scale.y / 2);
+    b2Fixture* groundFixture = groundBody->CreateFixture(&b2GroundBox, 0.0f);
+    groundFixture->SetFriction(1.0f);
+
+    obj->rigidBody = groundBody;
+    obj->fixture = groundFixture;
+
+    groundBody->GetUserData().pointer = reinterpret_cast<uintptr_t>(obj.get());
+
+    return obj;
+}
 
 GameObject::GameObject(b2World* world) : world(world) {}
 GameObject::~GameObject() {

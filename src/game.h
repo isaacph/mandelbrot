@@ -84,7 +84,7 @@ private:
     b2World* world;
 };
 
-std::unique_ptr<GameObject> makePlayer(b2World* world, Box bodyDef);
+std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position);
 std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
 
 class Game : public b2ContactListener {
@@ -101,10 +101,10 @@ private:
     Camera camera;
     GridManager gridManager;
     b2World box2dWorld = b2World(b2Vec2(0.0f, 9.8f));
-    b2Body* groundBody;
-    b2Fixture* groundFixture;
-    b2Body* playerBody;
-    b2Fixture* playerFixture;
+    //b2Body* groundBody;
+    //b2Fixture* groundFixture;
+    //b2Body* playerBody;
+    //b2Fixture* playerFixture;
 public:
     void BeginContact(b2Contact* contact);
      
