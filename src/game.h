@@ -73,6 +73,7 @@ private:
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
     Camera camera;
+    bool foward;
 };
 
 class Player {
