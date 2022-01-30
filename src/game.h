@@ -68,6 +68,7 @@ struct BoxBodyType : public BodyType {
     glm::vec2 scale;
 };
 
+class Game;
 class GameObject {
 public:
     enum Type {
@@ -78,15 +79,18 @@ public:
     std::unique_ptr<BodyType> bodyType;
     b2Body* rigidBody;
     b2Fixture* fixture;
-    GameObject(b2World* world);
+    GameObject(Game* game, b2World* world);
     ~GameObject();
+
+    bool onGround = false;
 private:
     b2World* world;
+    Game* game;
 };
 
-std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position);
-std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
-std::vector<std::unique_ptr<GameObject>> makeGround(b2World* world, GridPos gridPos, Grid grid);
+std::unique_ptr<GameObject> makePlayer(Game* game, b2World* world, glm::vec2 position);
+std::unique_ptr<GameObject> makeGroundType(Game * game, b2World* world, Box bodyDef);
+std::vector<std::unique_ptr<GameObject>> makeGround(Game* game, b2World* world, GridPos gridPos, Grid grid);
 
 class Game : public b2ContactListener {
 public:
@@ -108,6 +112,7 @@ private:
     //b2Body* playerBody;
     //b2Fixture* playerFixture;
 public:
+    std::set<GameObject*> gameObjects;
     void BeginContact(b2Contact* contact);
      
     void EndContact(b2Contact* contact);

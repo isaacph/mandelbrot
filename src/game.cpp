@@ -61,8 +61,8 @@ glm::vec2 Camera::toScreenCoordinate(glm::vec2 screenCoordinate) const {
     return screenCoordinate;
 }
 
-std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
-    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(world));
+std::unique_ptr<GameObject> makePlayer(Game* game, b2World* world, glm::vec2 position) {
+    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(game, world));
     obj->types = {GameObject::PLAYER};
     obj->name = "Player";
     
@@ -102,8 +102,8 @@ std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
     return obj;
 }
 
-std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef) {
-    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(world));
+std::unique_ptr<GameObject> makeGroundType(Game* game, b2World* world, Box bodyDef) {
+    std::unique_ptr<GameObject> obj = std::unique_ptr<GameObject>(new GameObject(game, world));
     obj->types = {GameObject::GROUND};
     obj->name = "Ground";
     
@@ -127,7 +127,7 @@ std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef) {
     return obj;
 }
 
-std::vector<std::unique_ptr<GameObject>> makeGround(b2World* world, GridPos gridPos, Grid grid) {
+std::vector<std::unique_ptr<GameObject>> makeGround(Game* game, b2World* world, GridPos gridPos, Grid grid) {
     glm::vec2 gridStart;
     gridStart.x = gridPos.x * GRID_SIZE;
     gridStart.y = gridPos.y * GRID_SIZE;
@@ -136,17 +136,20 @@ std::vector<std::unique_ptr<GameObject>> makeGround(b2World* world, GridPos grid
     for (int y = 0; y < GRID_SIZE; ++y) {
         for (int x = 0; x < GRID_SIZE; ++x) {
             if (grid.blocks[y * GRID_SIZE + x] != air) {
-                groundBodies.push_back(std::move(makeGroundType(world, Box{gridStart + glm::vec2{x + 0.5f, y + 0.5f}, {1, 1}})));
+                groundBodies.push_back(std::move(makeGroundType(game, world, Box{gridStart + glm::vec2{x + 0.5f, y + 0.5f}, {1, 1}})));
             }
         }
     }
     return groundBodies;
 }
 
-GameObject::GameObject(b2World* world) : world(world) {}
+GameObject::GameObject(Game* game, b2World* world) : world(world), game(game) {
+    game->gameObjects.insert(this);
+}
 GameObject::~GameObject() {
     rigidBody->DestroyFixture(fixture);
     world->DestroyBody(rigidBody);
+    game->gameObjects.erase(this);
 }
 
 void Game::BeginContact(b2Contact* contact) {
@@ -159,4 +162,46 @@ void Game::PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
 }
  
 void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
+    GameObject* objA = reinterpret_cast<GameObject*>(contact->GetFixtureA()->GetBody()->GetUserData().pointer);
+    GameObject* objB = reinterpret_cast<GameObject*>(contact->GetFixtureB()->GetBody()->GetUserData().pointer);
+
+    // find if ground collides with non ground
+    bool groundIsA = false;
+    if (objA->types.contains(GameObject::GROUND)) {
+        groundIsA = true;
+    }
+    if (objB->types.contains(GameObject::GROUND)) {
+        if (groundIsA) {
+            // ground colliding with ground? i don't care
+            return;
+        }
+    } else {
+        if (!groundIsA) {
+            // nonGround colliding with nonGround? i don't care
+            return;
+        }
+    }
+    
+    b2Vec2 normal[2];
+    normal[0] = contact->GetManifold()->localNormal;
+    normal[1] = contact->GetManifold()->localNormal;
+    b2Vec2 fullImpulse;
+    fullImpulse.x = 0;
+    fullImpulse.y = 0;
+    for (int i = 0; i < 2; ++i) {
+        normal[i] *= impulse->normalImpulses[i];
+        normal[i] *= groundIsA ? -1 : 1;
+        fullImpulse += normal[i];
+    }
+
+    //std::cout << "PostSolve, gorundIsA: " << groundIsA << ", impulse: " << fullImpulse.x << ", " << fullImpulse.y << std::endl;
+
+    if (fullImpulse.y > 0.0001f) {
+        // ground pushed object up
+        if (groundIsA) {
+            objB->onGround = true;
+        } else {
+            objA->onGround = true;
+        }
+    }
 }

@@ -102,13 +102,14 @@ void Game::run() {
         //b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
         //playerFixture->SetFriction(5.0f);
 
-        std::unique_ptr<GameObject> player = makePlayer(&box2dWorld, {0.0f, -5.0f});
-        std::unique_ptr<GameObject> ground = makeGroundType(&box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
+        std::unique_ptr<GameObject> player = makePlayer(this, &box2dWorld, {0.0f, -5.0f});
+        std::unique_ptr<GameObject> ground = makeGroundType(this, &box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
        
         std::map<GridPos, TexturedBuffer> gridRendering;
         std::map<GridPos, std::vector<std::unique_ptr<GameObject>>> gridHitboxes;
         b2World* worldPtr = &box2dWorld;
-        auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering, &gridHitboxes, &worldPtr](std::pair<GridPos, Grid> grid) {
+        worldPtr->SetContactListener(this);
+        auto gridChangeSub = gridManager.gridChanges.subscribe([this, &gridRendering, &gridHitboxes, &worldPtr](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
             if (p != gridRendering.end()) {
@@ -116,7 +117,7 @@ void Game::run() {
             } else {
                 gridRendering.insert({grid.first, TexturedBuffer(testBuffer)});
             }
-            gridHitboxes[grid.first] = std::move(makeGround(worldPtr, grid.first, grid.second));
+            gridHitboxes[grid.first] = std::move(makeGround(this, worldPtr, grid.first, grid.second));
         });
         gridManager.set(1, 0, 0);
 
@@ -133,6 +134,8 @@ void Game::run() {
             if (er != 0) {
                 std::cerr << er << std::endl;
             }
+
+            std::cout << "Player on ground: " << player->onGround << std::endl;
 
             double mx, my;
             glfwGetCursorPos(window, &mx, &my);
@@ -166,16 +169,21 @@ void Game::run() {
                 if (playerMoveForce.LengthSquared() > 0.00001f) {
                     player->rigidBody->ApplyForce(playerMoveForce, player->rigidBody->GetPosition(), true);
                 }
-                if (playerJump > 0) {
+                if (playerJump != 0) {
                     // check player can jump
+                    //std::cout << "Player trying to jump" << std::endl;
 
-
-                    b2Vec2 playerJumpImpulse(0, playerJump);
-                    if (playerJumpImpulse.LengthSquared() > 0.00001f) {
-                        player->rigidBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                    if (player->onGround) {
+                        b2Vec2 playerJumpImpulse(0, playerJump);
+                        if (playerJumpImpulse.LengthSquared() > 0.00001f) {
+                            player->rigidBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                        }
                     }
                 }
                 physicsFrames++;
+                for (GameObject* obj : gameObjects) {
+                    obj->onGround = false;
+                }
                 box2dWorld.Step(1.0f / 60.0f, 8, 3);
                 physicsTime -= 1.0 / 60.0;
             }
