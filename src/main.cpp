@@ -78,20 +78,21 @@ void Game::run() {
         double delta = 0;
         double speed= 300.0f;
 
-        World world;
+        //World world;
         std::map<GridPos, TexturedBuffer> gridRendering;
-        b2Vec2 worldGravity(0.0f, 9.8f);
-        b2World box2dWorld(worldGravity);
         b2BodyDef groundBodyDef;
         groundBodyDef.position.Set(0.0f, 5.0f);
         b2Body* groundBody = box2dWorld.CreateBody(&groundBodyDef);
         b2PolygonShape b2GroundBox;
         b2GroundBox.SetAsBox(10.0f, 5.0f);
-        groundBody->CreateFixture(&b2GroundBox, 0.0f);
+        b2Fixture* groundFixture = groundBody->CreateFixture(&b2GroundBox, 0.0f);
+        groundFixture->SetFriction(1.0f);
+        
 
         b2BodyDef playerBodyDef;
         playerBodyDef.type = b2_dynamicBody;
         playerBodyDef.position.Set(0.0f, -5.0f);
+        playerBodyDef.fixedRotation = true;
         b2Body* playerBody = box2dWorld.CreateBody(&playerBodyDef);
         b2PolygonShape dynamicBox;
         dynamicBox.SetAsBox(0.5f, 1.0f);
@@ -99,9 +100,13 @@ void Game::run() {
         fixtureDef.shape = &dynamicBox;
         fixtureDef.density = 1.0f;
         fixtureDef.friction = 0.3f;
-        playerBody->CreateFixture(&fixtureDef);
+        b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
+        playerFixture->SetFriction(5.0f);
+        
+        
+        
 
-        auto gridChangeSub = world.gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
+        auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
             if (p != gridRendering.end()) {
@@ -110,7 +115,7 @@ void Game::run() {
                 gridRendering.insert({grid.first, TexturedBuffer(testBuffer)});
             }
         });
-        world.gridManager.set(1, 0, 0);
+        gridManager.set(1, 0, 0);
 
         camera.zoom(16.0f);
 
@@ -145,22 +150,27 @@ void Game::run() {
 
             // draw on the grid with the mouse
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-                world.gridManager.set(1, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
+                gridManager.set(1, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
             }
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-                world.gridManager.set(air, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
+                gridManager.set(air, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
             }
 
             physicsTime += delta;
             double timeStep = 1.0 / 60.0f;
             while (physicsTime > timeStep) {
                 b2Vec2 playerMoveForce(playerMove.x * timeStep, playerMove.y * timeStep);
-                b2Vec2 playerJumpImpulse(0, playerJump);
                 if (playerMoveForce.LengthSquared() > 0.00001f) {
                     playerBody->ApplyForce(playerMoveForce, playerBody->GetPosition(), true);
                 }
-                if (playerJumpImpulse.LengthSquared() > 0.00001f) {
-                    playerBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                if (playerJump > 0) {
+                    // check player can jump
+                    
+
+                    b2Vec2 playerJumpImpulse(0, playerJump);
+                    if (playerJumpImpulse.LengthSquared() > 0.00001f) {
+                        playerBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                    }
                 }
 
                 physicsFrames++;
