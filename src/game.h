@@ -99,9 +99,7 @@ private:
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
     Camera camera;
-<<<<<<< HEAD
     bool foward;
-=======
     GridManager gridManager;
     b2World box2dWorld = b2World(b2Vec2(0.0f, 9.8f));
     b2Body* groundBody;
@@ -116,7 +114,6 @@ public:
     void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
      
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
->>>>>>> 6e332d165cf64e4f79e9d7a6cc33e873d694c9a5
 };
 
 class Player {

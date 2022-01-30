@@ -102,9 +102,6 @@ void Game::run() {
         fixtureDef.friction = 0.3f;
         b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
         playerFixture->SetFriction(5.0f);
-        
-        
-        
 
         auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
@@ -165,14 +162,13 @@ void Game::run() {
                 }
                 if (playerJump > 0) {
                     // check player can jump
-                    
+
 
                     b2Vec2 playerJumpImpulse(0, playerJump);
                     if (playerJumpImpulse.LengthSquared() > 0.00001f) {
                         playerBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
                     }
                 }
-
                 physicsFrames++;
                 box2dWorld.Step(1.0f / 60.0f, 8, 3);
                 physicsTime -= 1.0 / 60.0;
