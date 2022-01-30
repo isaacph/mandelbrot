@@ -194,9 +194,10 @@ void Game::run() {
             playerMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(playerRenderBox.position.x, playerRenderBox.position.y, 0));
             playerMatrix = glm::rotate(playerMatrix, player->rigidBody->GetAngle(), glm::vec3(0, 0, 1));
             playerMatrix = glm::scale(playerMatrix, glm::vec3(playerRenderBox.scale.x, playerRenderBox.scale.y, 0));
+            glm::mat4 hitboxMatrix = toMatrix(Box{glm::vec2(player->rigidBody->GetPosition().x, player->rigidBody->GetPosition().y), ((BoxBodyType*) player->bodyType.get())->scale});
             glBindTexture(GL_TEXTURE_2D, tex3);
             textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
-            //simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
+            simpleRender.render(proj * camera.getView() * hitboxMatrix, glm::vec4(1.0f));
 
             Box groundBox;
             b2Vec2 groundPos = ground->rigidBody->GetPosition();

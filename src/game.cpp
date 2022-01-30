@@ -70,13 +70,23 @@ std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
     boxBody->scale = glm::vec2(1.0f, 1.5f);
     obj->bodyType = std::unique_ptr<BodyType>(boxBody);
 
+    b2PolygonShape dynamicBox;
+    float shearX = 0.3f, shearY = 0.03f;
+    //dynamicBox.SetAsBox(boxBody->scale.x / 2.0f, boxBody->scale.y / 2.0f);
+    b2Vec2 vertices[6];
+    vertices[0].Set(+boxBody->scale.x / 2.0f, -boxBody->scale.y / 2.0f);
+    vertices[1].Set(-boxBody->scale.x / 2.0f, -boxBody->scale.y / 2.0f);
+    vertices[2].Set(-boxBody->scale.x / 2.0f, +boxBody->scale.y / 2.0f - shearY);
+    vertices[3].Set(-boxBody->scale.x / 2.0f + shearX, +boxBody->scale.y / 2.0f);
+    vertices[4].Set(+boxBody->scale.x / 2.0f - shearX, +boxBody->scale.y / 2.0f);
+    vertices[5].Set(+boxBody->scale.x / 2.0f, +boxBody->scale.y / 2.0f - shearY);
+    dynamicBox.Set(vertices, 6);
+
     b2BodyDef playerBodyDef;
     playerBodyDef.type = b2_dynamicBody;
     playerBodyDef.position.Set(position.x, position.y);
     playerBodyDef.fixedRotation = true;
     b2Body* playerBody = world->CreateBody(&playerBodyDef);
-    b2PolygonShape dynamicBox;
-    dynamicBox.SetAsBox(boxBody->scale.x / 2.0f, boxBody->scale.y / 2.0f);
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &dynamicBox;
     fixtureDef.density = 1.0f;
