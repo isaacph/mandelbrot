@@ -49,7 +49,7 @@ std::pair<glm::vec2, glm::vec2> getSpriteSheetCoordinates(int sheetTilesX, int s
 std::vector<float> makeTexturedBuffer(const Grid& grid) {
     std::vector<float> buffer;
     buffer.reserve(GRID_SIZE * GRID_SIZE * 6 * 4);
-    int sheetTilesX = 4, sheetTilesY = 4;
+    int sheetTilesX = TILE_SHEET_WIDTH, sheetTilesY = TILE_SHEET_HEIGHT;
     for (int y = 0; y < GRID_SIZE; ++y) {
         for (int x = 0; x < GRID_SIZE; ++x) {
             int index = grid.blocks[y * GRID_SIZE + x];

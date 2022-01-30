@@ -9,6 +9,8 @@
 const int GRID_SIZE = 16;
 using BlockType = char;
 const BlockType air=0;
+const int TILE_SHEET_WIDTH = 4;
+const int TILE_SHEET_HEIGHT = 4;
 
 class Grid {
 public:
