@@ -182,7 +182,7 @@ void Game::run() {
             b2Vec2 playerPos = player->rigidBody->GetPosition();
             camera.center(playerPos.x, playerPos.y);
             Box playerRenderBox;
-            playerRenderBox.position = {playerPos.x, playerPos.y+ 0.25f};
+            playerRenderBox.position = {playerPos.x, playerPos.y-0.3f};
             if(foward)
                 playerRenderBox.scale = {3, 4};
             else
