@@ -117,6 +117,22 @@ std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef) {
     return obj;
 }
 
+std::vector<std::unique_ptr<GameObject>> makeGround(b2World* world, GridPos gridPos, Grid grid) {
+    glm::vec2 gridStart;
+    gridStart.x = gridPos.x * GRID_SIZE;
+    gridStart.y = gridPos.y * GRID_SIZE;
+
+    std::vector<std::unique_ptr<GameObject>> groundBodies;
+    for (int y = 0; y < GRID_SIZE; ++y) {
+        for (int x = 0; x < GRID_SIZE; ++x) {
+            if (grid.blocks[y * GRID_SIZE + x] != air) {
+                groundBodies.push_back(std::move(makeGroundType(world, Box{gridStart + glm::vec2{x + 0.5f, y + 0.5f}, {1, 1}})));
+            }
+        }
+    }
+    return groundBodies;
+}
+
 GameObject::GameObject(b2World* world) : world(world) {}
 GameObject::~GameObject() {
     rigidBody->DestroyFixture(fixture);

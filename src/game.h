@@ -86,6 +86,7 @@ private:
 
 std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position);
 std::unique_ptr<GameObject> makeGroundType(b2World* world, Box bodyDef);
+std::vector<std::unique_ptr<GameObject>> makeGround(b2World* world, GridPos gridPos, Grid grid);
 
 class Game : public b2ContactListener {
 public:

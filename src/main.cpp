@@ -106,7 +106,9 @@ void Game::run() {
         std::unique_ptr<GameObject> ground = makeGroundType(&box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
        
         std::map<GridPos, TexturedBuffer> gridRendering;
-        auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
+        std::map<GridPos, std::vector<std::unique_ptr<GameObject>>> gridHitboxes;
+        b2World* worldPtr = &box2dWorld;
+        auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering, &gridHitboxes, &worldPtr](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
             if (p != gridRendering.end()) {
@@ -114,6 +116,7 @@ void Game::run() {
             } else {
                 gridRendering.insert({grid.first, TexturedBuffer(testBuffer)});
             }
+            gridHitboxes[grid.first] = std::move(makeGround(worldPtr, grid.first, grid.second));
         });
         gridManager.set(1, 0, 0);
 
