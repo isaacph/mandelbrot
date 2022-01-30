@@ -67,7 +67,8 @@ void Game::run() {
 
     {
         GLuint tex = makeNearestTexture("res/tilesheet.png");
-        GLuint tex2 = makeNearestTexture("res/blobfish.png");
+        GLuint tex2 = makeNearestTexture("res/dirt2.png");
+        GLuint tex3= makeNearestTexture("res/person.png");
         SimpleRender simpleRender;
         TextureRender textureRender;
         float x=0.0f, y=0.0f, gx=200.0f;
@@ -104,10 +105,7 @@ void Game::run() {
 
         std::unique_ptr<GameObject> player = makePlayer(&box2dWorld, {0.0f, -5.0f});
         std::unique_ptr<GameObject> ground = makeGroundType(&box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
-        
-        
-        
-
+       
         auto gridChangeSub = gridManager.gridChanges.subscribe([&gridRendering](std::pair<GridPos, Grid> grid) {
             std::vector<GLfloat> testBuffer = makeTexturedBuffer(grid.second);
             auto p = gridRendering.find(grid.first);
@@ -132,7 +130,6 @@ void Game::run() {
             if (er != 0) {
                 std::cerr << er << std::endl;
             }
-            glClear(GL_COLOR_BUFFER_BIT);
 
             double mx, my;
             glfwGetCursorPos(window, &mx, &my);
@@ -168,28 +165,35 @@ void Game::run() {
                 }
                 if (playerJump > 0) {
                     // check player can jump
-                    
+
 
                     b2Vec2 playerJumpImpulse(0, playerJump);
                     if (playerJumpImpulse.LengthSquared() > 0.00001f) {
                         player->rigidBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
                     }
                 }
-
                 physicsFrames++;
                 box2dWorld.Step(1.0f / 60.0f, 8, 3);
                 physicsTime -= 1.0 / 60.0;
             }
+            //start rendering
+            glClear(GL_COLOR_BUFFER_BIT);
 
             b2Vec2 playerPos = player->rigidBody->GetPosition();
             camera.center(playerPos.x, playerPos.y);
             Box playerRenderBox;
-            playerRenderBox.position = {playerPos.x, playerPos.y};
-            playerRenderBox.scale = {1, 2};
-            glm::mat4 playerMatrix = toMatrix(playerRenderBox);
-            //glBindTexture(GL_TEXTURE_2D, tex2);
-            //textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
-            simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
+            playerRenderBox.position = {playerPos.x, playerPos.y+ 0.25f};
+            if(foward)
+                playerRenderBox.scale = {3, 4};
+            else
+                playerRenderBox.scale = {-3, 4};
+            glm::mat4 playerMatrix;
+            playerMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(playerRenderBox.position.x, playerRenderBox.position.y, 0));
+            playerMatrix = glm::rotate(playerMatrix, player->rigidBody->GetAngle(), glm::vec3(0, 0, 1));
+            playerMatrix = glm::scale(playerMatrix, glm::vec3(playerRenderBox.scale.x, playerRenderBox.scale.y, 0));
+            glBindTexture(GL_TEXTURE_2D, tex3);
+            textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+            //simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
 
             Box groundBox;
             b2Vec2 groundPos = ground->rigidBody->GetPosition();
@@ -198,7 +202,7 @@ void Game::run() {
             groundBox.scale = {groundScale.x, groundScale.y};
             glm::mat4 groundMatrix = toMatrix(groundBox);
             glBindTexture(GL_TEXTURE_2D, tex2);
-            textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0);
+            textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
             //for (const auto& p : gridRendering) {
             //    GridPos pos = p.first;
@@ -255,6 +259,12 @@ void Game::onResize(int width, int height) {
 void Game::onKey(int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+        foward=false;
+    }
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+        foward=true;
     }
 }
 

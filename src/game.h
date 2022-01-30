@@ -99,6 +99,7 @@ private:
     int windowWidth = 0, windowHeight = 0;
     glm::mat4 proj;
     Camera camera;
+    bool foward;
     GridManager gridManager;
     b2World box2dWorld = b2World(b2Vec2(0.0f, 9.8f));
     //b2Body* groundBody;
