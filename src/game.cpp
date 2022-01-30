@@ -194,7 +194,7 @@ void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
         fullImpulse += normal[i];
     }
 
-    std::cout << "PostSolve, gorundIsA: " << groundIsA << ", impulse: " << fullImpulse.x << ", " << fullImpulse.y << std::endl;
+    std::cout << "PostSolve, gorundIsA: " << groundIsA << ", impulse: " << fullImpulse.x << ", " << fullImpulse.y << ", normal: " << contact->GetManifold()->localNormal.y << std::endl;
 
     if (fullImpulse.y > 0.0001f) {
         // ground pushed object up
