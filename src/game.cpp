@@ -182,21 +182,21 @@ void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
         }
     }
     
-    b2Vec2 normal[2];
-    normal[0] = contact->GetManifold()->localNormal;
-    normal[1] = contact->GetManifold()->localNormal;
-    b2Vec2 fullImpulse;
-    fullImpulse.x = 0;
-    fullImpulse.y = 0;
-    for (int i = 0; i < 2; ++i) {
-        normal[i] *= impulse->normalImpulses[i];
-        normal[i] *= groundIsA ? -1 : 1;
-        fullImpulse += normal[i];
-    }
+    //b2Vec2 normal[2];
+    //normal[0] = contact->GetManifold()->localNormal;
+    //normal[1] = contact->GetManifold()->localNormal;
+    //b2Vec2 fullImpulse;
+    //fullImpulse.x = 0;
+    //fullImpulse.y = 0;
+    //for (int i = 0; i < 2; ++i) {
+    //    normal[i] *= impulse->normalImpulses[i];
+    //    normal[i] *= groundIsA ? -1 : 1;
+    //    fullImpulse += normal[i];
+    //}
 
-    std::cout << "PostSolve, gorundIsA: " << groundIsA << ", impulse: " << fullImpulse.x << ", " << fullImpulse.y << ", normal: " << contact->GetManifold()->localNormal.y << std::endl;
+    //std::cout << "PostSolve, gorundIsA: " << groundIsA << ", impulse: " << fullImpulse.x << ", " << fullImpulse.y << ", normal: " << contact->GetManifold()->localNormal.y << std::endl;
 
-    if (fullImpulse.y > 0.0001f) {
+    if (contact->GetManifold()->localNormal.y > 0.5f) {
         // ground pushed object up
         if (groundIsA) {
             objB->onGround = true;

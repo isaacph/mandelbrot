@@ -140,7 +140,7 @@ void Game::run() {
             glm::vec2 mousePos = {mx, my};
 
             glm::vec2 playerMove = glm::vec2(0.0f, 0.0f);
-            float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -8.0f : 0.0f;
+            float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -10.0f : 0.0f;
             playerMove.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
             if (playerMove.length() >= 0) {
                 playerMove /= playerMove.length();
@@ -175,6 +175,7 @@ void Game::run() {
                         b2Vec2 playerJumpImpulse(0, playerJump);
                         if (playerJumpImpulse.LengthSquared() > 0.00001f) {
                             player->rigidBody->ApplyLinearImpulseToCenter(playerJumpImpulse, true);
+                            player->rigidBody->SetTransform(player->rigidBody->GetPosition() + b2Vec2(0, -0.01f), player->rigidBody->GetAngle());
                         }
                     }
                 }
