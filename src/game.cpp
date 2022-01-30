@@ -67,7 +67,7 @@ std::unique_ptr<GameObject> makePlayer(b2World* world, glm::vec2 position) {
     obj->name = "Player";
     
     BoxBodyType* boxBody = new BoxBodyType();
-    boxBody->scale = glm::vec2(1.0f, 2.0f);
+    boxBody->scale = glm::vec2(1.0f, 1.5f);
     obj->bodyType = std::unique_ptr<BodyType>(boxBody);
 
     b2BodyDef playerBodyDef;
