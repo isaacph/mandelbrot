@@ -67,7 +67,7 @@ void Game::run() {
 
     {
         GLuint tex = makeNearestTexture("res/tilesheet.png");
-        GLuint tex2 = makeNearestTexture("res/blobfish.png");
+        GLuint tex2 = makeNearestTexture("res/dirt2.png");
         GLuint tex3= makeNearestTexture("res/person.png");
         SimpleRender simpleRender;
         TextureRender textureRender;
@@ -181,9 +181,9 @@ void Game::run() {
             Box playerRenderBox;
             playerRenderBox.position = {playerPos.x, playerPos.y+ 0.25f};
             if(foward)
-            playerRenderBox.scale = {3, 3};
+            playerRenderBox.scale = {3, 4};
             else
-            playerRenderBox.scale = {-3, 3};
+            playerRenderBox.scale = {-3, 4};
             glm::mat4 playerMatrix;
             playerMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(playerRenderBox.position.x, playerRenderBox.position.y, 0));
             playerMatrix = glm::rotate(playerMatrix, playerBody->GetAngle(), glm::vec3(0, 0, 1));
@@ -199,7 +199,7 @@ void Game::run() {
             groundBox.scale = {groundScale.x, groundScale.y};
             glm::mat4 groundMatrix = toMatrix(groundBox);
             glBindTexture(GL_TEXTURE_2D, tex2);
-            textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0);
+            textureRender.render(proj * camera.getView() * groundMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
             //for (const auto& p : gridRendering) {
             //    GridPos pos = p.first;
