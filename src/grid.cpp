@@ -9,14 +9,20 @@ BlockType GridManager::set(BlockType type, int worldx, int worldy) {
     int ingridx = modRoundDown(worldx, GRID_SIZE);
     int ingridy = modRoundDown(worldy, GRID_SIZE);
     GridPos gridpos = {gridx, gridy};
-    auto ptr = grids.find(GridPos{worldx, worldy});
+    auto ptr = grids.find(gridpos);
     if (ptr == grids.end()) {
-        ptr = grids.insert({gridpos, randomGrid()}).first;
+        ptr = grids.insert({gridpos, Grid()}).first;
     }
     BlockType prevType = ptr->second.blocks[ingridy * GRID_SIZE + ingridx];
-    gridChanges.emit({{gridx, gridy}, ptr->second});
     ptr->second.blocks[ingridy * GRID_SIZE + ingridx] = type;
+    if (true || prevType != type) gridChanges.emit({{gridx, gridy}, ptr->second});
     return prevType;
+}
+
+void GridManager::setGrid(Grid grid, int gridX, int gridY) {
+    GridPos pos = {gridX, gridY};
+    grids[pos] = grid;
+    gridChanges.emit({pos, grid});
 }
 
 BlockType GridManager::check(int worldx, int worldy)const {
@@ -25,7 +31,7 @@ BlockType GridManager::check(int worldx, int worldy)const {
     int ingridx = modRoundDown(worldx, GRID_SIZE);
     int ingridy = modRoundDown(worldy, GRID_SIZE);
     GridPos gridpos = {gridx, gridy};
-    auto ptr = grids.find(GridPos{worldx, worldy});
+    auto ptr = grids.find(gridpos);
     if (ptr == grids.end()) {
         return air;
     }

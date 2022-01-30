@@ -17,6 +17,8 @@
 #include <span>
 #define MY_PI 3.1415926535979323f
 
+const float MOVE_INTERPOLATE_DISTANCE_LIMIT = 0.1f;
+
 void debugGLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void* userPtr) {
     std::cout << "OpenGL Debug Message: (src: " << source << ", type: " << type << ", id: " << id << ", sev: " << severity << ", len: " << length << ", message:\n";
     std::cout << message << std::endl;
@@ -107,14 +109,42 @@ void Game::run() {
             glm::vec2 mousePos = {mx, my};
 
             glm::vec2 camPos = camera.getCenter();
-            glm::vec2 deltaCam = glm::vec2(0.0f, 0.0f);
-            deltaCam.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
-            deltaCam.y += (glfwGetKey(window, GLFW_KEY_DOWN) - glfwGetKey(window, GLFW_KEY_UP));
-            deltaCam /= deltaCam.length();
-            world.player.hitbox.position += deltaCam * (deltaf * 5);
-            
+            glm::vec2 playerMove = glm::vec2(0.0f, 0.0f);
+            //playerMove.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
+            //playerMove.y += (glfwGetKey(window, GLFW_KEY_DOWN) - glfwGetKey(window, GLFW_KEY_UP));
+            //playerMove /= playerMove.length();
+            //playerMove *= (delta * 5);
+
+            // instead of moving the object the entire distance at once and then checking collision,
+            // we move the object little by little, and check collision each time
+            while (glm::length(playerMove) > 0 && false) {
+                // get the next bit to move -> partialMove
+                glm::vec2 partialMove;
+                if (glm::length(playerMove) > MOVE_INTERPOLATE_DISTANCE_LIMIT) {
+                    partialMove = playerMove / (playerMove.length() * MOVE_INTERPOLATE_DISTANCE_LIMIT);
+                    playerMove -= partialMove;
+                } else {
+                    partialMove = playerMove;
+                    playerMove = {0, 0};
+                }
+
+                // actually move the player a bit
+                world.player.hitbox.position += partialMove;
+                
+                // check collision
+            }
+
             camera.center(world.player.hitbox.position.x, world.player.hitbox.position.y);
             glm::vec2 mouseWorldPos = camera.toWorldCoordinate(mousePos);
+
+            // draw on the grid with the mouse
+            std::cout << floorInt(mouseWorldPos.x) << ", " << floorInt(mouseWorldPos.y) << std::endl;
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+                world.gridManager.set(1, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
+            }
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+                world.gridManager.set(air, floorInt(mouseWorldPos.x), floorInt(mouseWorldPos.y));
+            }
 
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
                 x += deltaf;
@@ -128,12 +158,14 @@ void Game::run() {
             //textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
             simpleRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f));
 
-            for (const std::pair<GridPos, TexturedBuffer>& gridRender : gridRendering) {
+            for (const auto& p : gridRendering) {
+                GridPos pos = p.first;
+                const TexturedBuffer& draw = p.second;
                 Box gridBox;
-                gridBox.position = {gridRender.first.x * GRID_SIZE, gridRender.first.y * GRID_SIZE};
+                gridBox.position = {pos.x * GRID_SIZE, pos.y * GRID_SIZE};
                 gridBox.scale = {GRID_SIZE, GRID_SIZE};
                 glBindTexture(GL_TEXTURE_2D, tex);
-                gridRender.second.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
+                draw.render(proj * camera.getView() * toMatrix(gridBox), glm::vec4(1.0f), 0);
             }
 
             glfwSwapBuffers(window);

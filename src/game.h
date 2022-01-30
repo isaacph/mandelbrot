@@ -21,6 +21,7 @@
 #include <cmath>
 #include <functional>
 #include "events.h"
+#include "physics.h"
 
 const float GRAV_ACCEL= 1.0f;
 const float MAX_FALL= 10.0f;
@@ -40,11 +41,6 @@ class Status{
     bool invunreable;
 };
 
-class Box {
-public:
-    glm::vec2 position;
-    glm::vec2 scale;
-};
 
 glm::mat4 toMatrix(Box box);
 
@@ -84,6 +80,10 @@ public:
     Box hitbox;
     float x_velocity;
     float y_velocity;
+    inline Player() {
+        hitbox.position = {0.0f, 0.0f};
+        hitbox.scale = {1.0f, 1.0f};
+    }
     inline void updateHitbox(float deltaF){
          hitbox.position.y+=x_velocity * deltaF;
          hitbox.position.x+=y_velocity * deltaF;

@@ -40,7 +40,12 @@ TexturedBuffer::TexturedBuffer(const std::vector<GLfloat>& data) {
 
 void TexturedBuffer::rebuild(const std::vector<float> &buffer) {
     glBindVertexArray(shared->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, shared->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, buffer.size() * sizeof(GLfloat), buffer.data());
+    //glEnableVertexAttribArray(ATTRIB_POSITION);
+    //glVertexAttribPointer(ATTRIB_POSITION, 2, GL_FLOAT, false, 4 * sizeof(GLfloat), (void*) 0);
+    //glEnableVertexAttribArray(ATTRIB_TEXTURE);
+    //glVertexAttribPointer(ATTRIB_TEXTURE, 2, GL_FLOAT, false, 4 * sizeof(GLfloat), (void*) (2 * sizeof(GLfloat)));
 }
 
 void TexturedBuffer::render(glm::mat4 matrix, glm::vec4 color, GLint sampler) const {

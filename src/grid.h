@@ -28,6 +28,7 @@ public:
 class GridManager {
 public:
     BlockType set(BlockType type, int worldx, int worldy);
+    void setGrid(Grid grid, int gridx, int gridy);
     BlockType check(int worldx, int worldy) const;
     std::map<GridPos, Grid> grids;
     Event<std::pair<GridPos, Grid>> gridChanges;

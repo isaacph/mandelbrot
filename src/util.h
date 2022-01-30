@@ -10,5 +10,8 @@ std::string readFile(const std::string_view& file);
 std::vector<unsigned char> readImage(const std::string_view& file, int& width, int& height);
 int divRoundDown(int a, int b);
 int modRoundDown(int a, int b);
+inline int floorInt(float num) {
+    return num < 0 ? (int) num - 1 : (int) num;
+}
 
 #endif
