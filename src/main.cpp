@@ -29,9 +29,6 @@ void debugGLFWMessage(int error, const char* desc) {
     throw std::runtime_error(std::string("GLFW runtime error ") + std::to_string(error) + std::string(desc));
 }
 
-
-
- //hello
 void Game::run() {
     glfwSetErrorCallback(debugGLFWMessage);
     if (!glfwInit())
@@ -139,16 +136,6 @@ void Game::run() {
             glfwGetCursorPos(window, &mx, &my);
             glm::vec2 mousePos = {mx, my};
 
-            glm::vec2 playerMove = glm::vec2(0.0f, 0.0f);
-            float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -10.0f : 0.0f;
-            playerMove.x += (glfwGetKey(window, GLFW_KEY_L) - glfwGetKey(window, GLFW_KEY_J));
-            if (playerMove.length() >= 0) {
-                playerMove /= playerMove.length();
-            }
-            
-            playerMove *= 100;
-            b2Vec2 playerMoveForce(playerMove.x, playerMove.y);
-            player->rigidBody->ApplyForce(playerMoveForce, player->rigidBody->GetPosition(), true);
 
             glm::vec2 mouseWorldPos = camera.toWorldCoordinate(mousePos);
 
@@ -163,6 +150,15 @@ void Game::run() {
             if (!paused) physicsTime += delta;
             double timeStep = 1.0 / 60.0f;
             while (physicsTime > timeStep) {
+                b2Vec2 playerMove(0.0f, 0.0f);
+                float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -10.0f : 0.0f;
+                playerMove.x += (glfwGetKey(window, GLFW_KEY_L) - glfwGetKey(window, GLFW_KEY_J));
+                if (playerMove.LengthSquared() > 0) {
+                    playerMove.x *= 1.0f / playerMove.Length();
+                    playerMove.y *= 1.0f / playerMove.Length();
+                }
+                
+                playerMove *= 1000;
                 b2Vec2 playerMoveForce(playerMove.x * timeStep, playerMove.y * timeStep);
                 if (playerMoveForce.LengthSquared() > 0.00001f) {
                     player->rigidBody->ApplyForce(playerMoveForce, player->rigidBody->GetPosition(), true);
@@ -384,3 +380,4 @@ int main() {
 //                // try to resolve a collision
 //                world.player.hitbox.position += minOffset;
 //            }
+

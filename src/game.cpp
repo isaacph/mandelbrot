@@ -92,7 +92,7 @@ std::unique_ptr<GameObject> makePlayer(Game* game, b2World* world, glm::vec2 pos
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
     b2Fixture* playerFixture = playerBody->CreateFixture(&fixtureDef);
-    playerFixture->SetFriction(5.0f);
+    playerFixture->SetFriction(1.0f);
 
     obj->rigidBody = playerBody;
     obj->fixture = playerFixture;
