@@ -67,7 +67,7 @@ std::unique_ptr<GameObject> makePlayer(Game* game, b2World* world, glm::vec2 pos
     obj->name = "Player";
     
     BoxBodyType* boxBody = new BoxBodyType();
-    boxBody->scale = glm::vec2(1.0f, 1.5f);
+    boxBody->scale = glm::vec2(0.7f, 1.5f);
     obj->bodyType = std::unique_ptr<BodyType>(boxBody);
 
     b2PolygonShape dynamicBox;

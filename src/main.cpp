@@ -104,7 +104,7 @@ void Game::run() {
 
         std::unique_ptr<GameObject> player = makePlayer(this, &box2dWorld, {0.0f, -5.0f});
         std::unique_ptr<GameObject> ground = makeGroundType(this, &box2dWorld, Box{{0.0f, 5.0f}, {20.0f, 10.0f}});
-       
+
         std::map<GridPos, TexturedBuffer> gridRendering;
         std::map<GridPos, std::vector<std::unique_ptr<GameObject>>> gridHitboxes;
         b2World* worldPtr = &box2dWorld;
@@ -141,7 +141,7 @@ void Game::run() {
 
             glm::vec2 playerMove = glm::vec2(0.0f, 0.0f);
             float playerJump = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? -10.0f : 0.0f;
-            playerMove.x += (glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT));
+            playerMove.x += (glfwGetKey(window, GLFW_KEY_L) - glfwGetKey(window, GLFW_KEY_J));
             if (playerMove.length() >= 0) {
                 playerMove /= playerMove.length();
             }
@@ -191,19 +191,23 @@ void Game::run() {
             b2Vec2 playerPos = player->rigidBody->GetPosition();
             camera.center(playerPos.x, playerPos.y);
             Box playerRenderBox;
-            playerRenderBox.position = {playerPos.x, playerPos.y-0.3f};
-            if(foward)
-                playerRenderBox.scale = {3, 4};
-            else
-                playerRenderBox.scale = {-3, 4};
+            playerRenderBox.position = {playerPos.x, playerPos.y + 0.06f};
+            float playerScale = 3.3f;
+            if(foward) {
+                playerRenderBox.position.x -= 0.05f;
+                playerRenderBox.scale = {playerScale, playerScale};
+            } else {
+                playerRenderBox.position.x += 0.05f;
+                playerRenderBox.scale = {-playerScale, playerScale};
+            }
             glm::mat4 playerMatrix;
             playerMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(playerRenderBox.position.x, playerRenderBox.position.y, 0));
             playerMatrix = glm::rotate(playerMatrix, player->rigidBody->GetAngle(), glm::vec3(0, 0, 1));
             playerMatrix = glm::scale(playerMatrix, glm::vec3(playerRenderBox.scale.x, playerRenderBox.scale.y, 0));
             glm::mat4 hitboxMatrix = toMatrix(Box{glm::vec2(player->rigidBody->GetPosition().x, player->rigidBody->GetPosition().y), ((BoxBodyType*) player->bodyType.get())->scale});
             glBindTexture(GL_TEXTURE_2D, tex3);
+//            simpleRender.render(proj * camera.getView() * hitboxMatrix, glm::vec4(1.0f));
             textureRender.render(proj * camera.getView() * playerMatrix, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
-            simpleRender.render(proj * camera.getView() * hitboxMatrix, glm::vec4(1.0f));
 
             Box groundBox;
             b2Vec2 groundPos = ground->rigidBody->GetPosition();
@@ -270,10 +274,10 @@ void Game::onKey(int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
-    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_J && action == GLFW_PRESS) {
         foward=false;
     }
-    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
         foward=true;
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
